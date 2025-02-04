@@ -47,14 +47,14 @@ impl Viewport {
                         "...".into(),
                     ]),
                     Line::from("the".red()),
-                    "main menu".into(),
+                    "viewport when main menu is active".into(),
                 ];
 
                 text
             }
             // New Game
             crate::app::states::StateType::NewGame => {
-                let text = vec![Line::from("Name thyself...".yellow()), Line::from(">")];
+                let text = vec![Line::from("Name thyself...".yellow())];
 
                 text
             }

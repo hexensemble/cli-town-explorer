@@ -1,20 +1,19 @@
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::widgets::ListItem;
-use std::io;
 
 // Consts for menu options
 const OPTIONS_MAIN_MENU: [&str; 2] = ["New Game", "Exit"];
-const OPTIONS_NEW_GAME: [&str; 1] = ["Cancel"];
+const OPTIONS_NEW_GAME: [&str; 1] = ["Esc to Cancel"];
 
 // Enum for menu types
 pub enum MenuType {
     MainMenu,
-    NewGame { name_input: String },
+    NewGame,
 }
 
 // Struct for menu
 pub struct Menu {
-    menu_type: MenuType,
+    pub menu_type: MenuType,
     options: Vec<String>,
     selected_index: usize,
 }
@@ -45,32 +44,8 @@ impl Menu {
     }
 
     // Currently highlighted menu option
-    fn highlighted(&self) -> &str {
+    pub fn highlighted(&self) -> &str {
         &self.options[self.selected_index]
-    }
-
-    // Select the currently highlighted menu option
-    // Menu options are displayed based on current menu type
-    // Menu type is determined by the update function which uses current state
-    pub fn select(&self, state_manager: &mut crate::app::states::StateManager) -> io::Result<bool> {
-        match self.menu_type {
-            // Main Menu
-            MenuType::MainMenu => match self.highlighted() {
-                "New Game" => {
-                    state_manager.current_state = crate::app::states::StateType::NewGame;
-                    state_manager.last_state = crate::app::states::StateType::MainMenu;
-                }
-                "Exit" => return Ok(false),
-                _ => {}
-            },
-            // New Game
-            MenuType::NewGame { name_input: _ } => match self.highlighted() {
-                "Cancel" => state_manager.current_state = state_manager.last_state.clone(),
-                _ => {}
-            },
-        }
-
-        Ok(true)
     }
 
     // Updates the menu type and options based on current state
@@ -83,9 +58,7 @@ impl Menu {
             }
             // New Game
             crate::app::states::StateType::NewGame => {
-                self.menu_type = MenuType::NewGame {
-                    name_input: String::new(),
-                };
+                self.menu_type = MenuType::NewGame;
                 self.options = OPTIONS_NEW_GAME.iter().map(|&s| s.into()).collect();
             }
         }
