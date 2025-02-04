@@ -18,10 +18,10 @@ pub fn start() -> Result<()> {
 
 // Main loop
 fn run(mut terminal: DefaultTerminal) -> Result<()> {
+    let mut state_manager = crate::app::states::StateManager::new();
     let mut menu = super::menu::Menu::new();
     let mut viewport = super::viewport::Viewport::new();
     let mut popup = super::popup::Popup::new();
-    let mut state_manager = crate::app::states::StateManager::new();
 
     loop {
         // Update

@@ -5,15 +5,8 @@ use ratatui::widgets::ListItem;
 const OPTIONS_MAIN_MENU: [&str; 2] = ["New Game", "Exit"];
 const OPTIONS_NEW_GAME: [&str; 1] = ["Esc to Cancel"];
 
-// Enum for menu types
-pub enum MenuType {
-    MainMenu,
-    NewGame,
-}
-
 // Struct for menu
 pub struct Menu {
-    pub menu_type: MenuType,
     options: Vec<String>,
     selected_index: usize,
 }
@@ -23,7 +16,6 @@ impl Menu {
     // Create a new menu, defaults to Main Menu
     pub fn new() -> Self {
         Self {
-            menu_type: MenuType::MainMenu,
             options: OPTIONS_MAIN_MENU.iter().map(|&s| s.into()).collect(),
             selected_index: 0,
         }
@@ -53,12 +45,10 @@ impl Menu {
         match state_manager.current_state {
             // Main Menu
             crate::app::states::StateType::MainMenu => {
-                self.menu_type = MenuType::MainMenu;
                 self.options = OPTIONS_MAIN_MENU.iter().map(|&s| s.into()).collect();
             }
             // New Game
             crate::app::states::StateType::NewGame => {
-                self.menu_type = MenuType::NewGame;
                 self.options = OPTIONS_NEW_GAME.iter().map(|&s| s.into()).collect();
             }
         }

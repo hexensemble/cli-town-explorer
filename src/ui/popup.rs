@@ -20,12 +20,13 @@ impl Popup {
     }
 
     // Updates the popup based on current_state
-    // To display or not display
     pub fn update(&mut self, state_manager: &crate::app::states::StateManager) {
         match state_manager.current_state {
+            // New Game
             crate::app::states::StateType::NewGame => {
                 self.display = true;
             }
+            // All other states
             _ => {
                 self.display = false;
             }
@@ -38,6 +39,7 @@ impl Popup {
         state_manager: &crate::app::states::StateManager,
     ) -> (String, Vec<Line>) {
         match state_manager.current_state {
+            // New Game
             crate::app::states::StateType::NewGame => {
                 self.title = "New Game".into();
                 let title = self.title.clone();
@@ -48,6 +50,7 @@ impl Popup {
 
                 (title, text)
             }
+            // All other states
             _ => {
                 self.title = String::new();
                 let title = self.title.clone();

@@ -1,37 +1,23 @@
 use ratatui::style::{Style, Stylize};
 use ratatui::text::{Line, Span};
 
-// Enum for viewport types
-pub enum ViewportType {
-    MainMenu,
-    NewGame,
-}
-
 // Struct for viewport
-pub struct Viewport {
-    pub viewport_type: ViewportType,
-}
+pub struct Viewport {}
 
 // Functions for viewport
 impl Viewport {
     // Create a new viewport, defaults to Main Menu
     pub fn new() -> Self {
-        Self {
-            viewport_type: ViewportType::MainMenu,
-        }
+        Self {}
     }
 
     // Updates the viewport type based on current state
     pub fn update(&mut self, state_manager: &crate::app::states::StateManager) {
         match state_manager.current_state {
             // Main Menu
-            crate::app::states::StateType::MainMenu => {
-                self.viewport_type = ViewportType::MainMenu;
-            }
+            crate::app::states::StateType::MainMenu => {}
             // New Game
-            crate::app::states::StateType::NewGame => {
-                self.viewport_type = ViewportType::NewGame;
-            }
+            crate::app::states::StateType::NewGame => {}
         }
     }
 
