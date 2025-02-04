@@ -3,44 +3,57 @@ use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::widgets::{Block, Borders, List, Paragraph};
 use ratatui::{DefaultTerminal, Frame};
 
+// Starts Ratatui and launches the main loop with run()
+// Restores original terminal when main loop in run() finishes
 pub fn start() -> Result<()> {
     color_eyre::install()?;
     let terminal = ratatui::init();
+
     let result = run(terminal);
+
     ratatui::restore();
     result
 }
 
+// Main loop
 fn run(mut terminal: DefaultTerminal) -> Result<()> {
-    let mut main = super::widgets::MainWidget::new();
-    let mut menu = super::widgets::MenuWidget::new();
-    let mut state = crate::app::state::State::new();
+    let mut menu = super::menu::Menu::new();
+    let mut viewport = super::viewport::Viewport::new();
+    let mut state_manager = crate::app::states::StateManager::new();
 
     loop {
-        main.update(&state);
-        menu.update(&state);
+        // Update
+        menu.update(&state_manager);
+        viewport.update(&state_manager);
 
+        // Render
         terminal.draw(|frame| {
-            render(frame, &main, &menu);
-        })?; // terminal.draw will give you a frame, then you can do a thing with that frame, in
-             // this case we call the render() function
+            render(frame, &state_manager, &menu, &viewport);
+        })?;
 
-        if !crate::app::events::EventHander::update(&mut main, &mut menu, &mut state)? {
+        // Handle events
+        if !crate::app::events::EventHander::update(&mut state_manager, &mut menu, &mut viewport)? {
             break Ok(());
         }
     }
 }
 
-fn render(frame: &mut Frame, main: &super::widgets::MainWidget, menu: &super::widgets::MenuWidget) {
-    let main_text = main.render();
-    let menu_options = menu.render();
+// Ratatui rendering
+fn render(
+    frame: &mut Frame,
+    state_manager: &crate::app::states::StateManager,
+    menu: &super::menu::Menu,
+    viewport: &super::viewport::Viewport,
+) {
+    let menu_options = menu.render(state_manager);
+    let viewport_text = viewport.render(state_manager);
 
     let size = frame.area();
 
     let vertical = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
-            Constraint::Percentage(70), // Main screen and menu
+            Constraint::Percentage(70), // Viewport and menu
             Constraint::Percentage(30), // Stats
         ])
         .split(size);
@@ -48,14 +61,14 @@ fn render(frame: &mut Frame, main: &super::widgets::MainWidget, menu: &super::wi
     let horizontal = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Percentage(60), //Main screen
+            Constraint::Percentage(60), // Viewport
             Constraint::Percentage(40), // Menu
         ])
         .split(vertical[0]);
 
-    let main_block =
-        Paragraph::new(main_text).block(Block::default().title("Main").borders(Borders::ALL));
-    frame.render_widget(main_block, horizontal[0]);
+    let viewport_block = Paragraph::new(viewport_text)
+        .block(Block::default().title("Viewport").borders(Borders::ALL));
+    frame.render_widget(viewport_block, horizontal[0]);
 
     let menu_block =
         List::new(menu_options).block(Block::default().title("Menu").borders(Borders::ALL));
