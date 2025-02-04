@@ -14,8 +14,22 @@ impl EventHander {
                 KeyCode::Up => menu.previous(),
                 KeyCode::Down => menu.next(),
                 KeyCode::Enter => {
-                    if !menu.select(state)? {
-                        return Ok(false);
+                    if let crate::ui::widgets::MenuType::NewGame { .. } = menu.menu_type {
+                        println!("Character name set!");
+                    } else {
+                        if !menu.select(state)? {
+                            return Ok(false);
+                        }
+                    }
+                }
+                KeyCode::Backspace => {
+                    if let crate::ui::widgets::MenuType::NewGame { .. } = menu.menu_type {
+                        menu.handle_input('\x08'); // Backspace
+                    }
+                }
+                KeyCode::Char(c) => {
+                    if let crate::ui::widgets::MenuType::NewGame { .. } = menu.menu_type {
+                        menu.handle_input(c); // Send typed char to menu
                     }
                 }
                 _ => {}
