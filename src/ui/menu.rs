@@ -3,7 +3,8 @@ use ratatui::widgets::ListItem;
 
 // Consts for menu options
 const OPTIONS_MAIN_MENU: [&str; 2] = ["New Game", "Exit"];
-const OPTIONS_NEW_GAME: [&str; 1] = ["Esc to Cancel"];
+const OPTIONS_NAME: [&str; 1] = ["Esc to Cancel"];
+const OPTIONS_NAME_CONFIRM: [&str; 2] = ["Confirm", "Cancel"];
 
 // Struct for menu
 pub struct Menu {
@@ -47,9 +48,13 @@ impl Menu {
             crate::app::states::StateType::MainMenu => {
                 self.options = OPTIONS_MAIN_MENU.iter().map(|&s| s.into()).collect();
             }
-            // New Game
-            crate::app::states::StateType::NewGame => {
-                self.options = OPTIONS_NEW_GAME.iter().map(|&s| s.into()).collect();
+            // New Game - Enter name
+            crate::app::states::StateType::Name => {
+                self.options = OPTIONS_NAME.iter().map(|&s| s.into()).collect();
+            }
+            // New Game - Confirm name
+            crate::app::states::StateType::NameConfirm => {
+                self.options = OPTIONS_NAME_CONFIRM.iter().map(|&s| s.into()).collect();
             }
         }
     }
@@ -57,28 +62,8 @@ impl Menu {
     // Renders the menu based on current State
     pub fn render(&self, state_manager: &crate::app::states::StateManager) -> Vec<ListItem> {
         match state_manager.current_state {
-            // Main Menu
-            crate::app::states::StateType::MainMenu => {
-                let list: Vec<ListItem> = self
-                    .options
-                    .iter()
-                    .enumerate()
-                    .map(|(i, option)| {
-                        let style = if i == self.selected_index {
-                            Style::default()
-                                .fg(Color::Green)
-                                .add_modifier(Modifier::BOLD)
-                        } else {
-                            Style::default()
-                        };
-                        ListItem::new(option.clone()).style(style)
-                    })
-                    .collect();
-
-                list
-            }
-            // New Game
-            crate::app::states::StateType::NewGame => {
+            // All other states
+            _ => {
                 let list: Vec<ListItem> = self
                     .options
                     .iter()

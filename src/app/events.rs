@@ -14,18 +14,21 @@ impl EventHander {
         popup: &mut crate::ui::popup::Popup,
     ) -> io::Result<bool> {
         match state_manager.current_state {
-            // New Game
-            super::states::StateType::NewGame => {
+            // New Game - Enter name
+            super::states::StateType::Name => {
                 if let Event::Key(key) = event::read()? {
                     match key.code {
                         KeyCode::Char(c) => popup.input.push(c),
                         KeyCode::Backspace => {
                             popup.input.pop();
                         }
-                        KeyCode::Enter => todo!(),
+                        KeyCode::Enter => {
+                            state_manager.current_state = super::states::StateType::NameConfirm;
+                            state_manager.last_state = super::states::StateType::Name;
+                        }
                         KeyCode::Esc => {
                             popup.input.clear();
-                            state_manager.current_state = state_manager.last_state.clone()
+                            state_manager.current_state = super::states::StateType::MainMenu;
                         }
                         _ => {}
                     }
@@ -64,10 +67,16 @@ pub fn select(
         // Main Menu
         super::states::StateType::MainMenu => match menu.highlighted() {
             "New Game" => {
-                state_manager.current_state = crate::app::states::StateType::NewGame;
+                state_manager.current_state = crate::app::states::StateType::Name;
                 state_manager.last_state = crate::app::states::StateType::MainMenu;
             }
             "Exit" => return Ok(false),
+            _ => {}
+        },
+        // New Game - Confirm name
+        super::states::StateType::NameConfirm => match menu.highlighted() {
+            "Confirm" => todo!(),
+            "Cancel" => state_manager.current_state = crate::app::states::StateType::Name,
             _ => {}
         },
         // All other menus
