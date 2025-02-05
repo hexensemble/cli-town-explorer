@@ -42,25 +42,25 @@ impl Menu {
     }
 
     // Updates the menu type and options based on current state
-    pub fn update(&mut self, state_manager: &crate::app::states::StateManager) {
+    pub fn update(&mut self, state_manager: &crate::core::states::StateManager) {
         match state_manager.current_state {
             // Main Menu
-            crate::app::states::StateType::MainMenu => {
+            crate::core::states::StateType::MainMenu => {
                 self.menu_options = OPTIONS_MAIN_MENU.iter().map(|&s| s.into()).collect();
             }
             // New Game - Enter name
-            crate::app::states::StateType::Name => {
+            crate::core::states::StateType::Name => {
                 self.menu_options = OPTIONS_NAME.iter().map(|&s| s.into()).collect();
             }
             // New Game - Confirm name
-            crate::app::states::StateType::NameConfirm => {
+            crate::core::states::StateType::NameConfirm => {
                 self.menu_options = OPTIONS_NAME_CONFIRM.iter().map(|&s| s.into()).collect();
             }
         }
     }
 
     // Renders the menu based on current State
-    pub fn render(&self, state_manager: &crate::app::states::StateManager) -> Vec<ListItem> {
+    pub fn render(&self, state_manager: &crate::core::states::StateManager) -> Vec<ListItem> {
         match state_manager.current_state {
             // All other states
             _ => {

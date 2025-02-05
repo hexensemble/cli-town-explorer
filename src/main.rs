@@ -1,4 +1,4 @@
-mod app;
+mod core;
 mod ui;
 
 // Main function
