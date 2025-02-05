@@ -2,7 +2,8 @@
 #[derive(Clone)]
 pub enum StateType {
     MainMenu,
-    NewGame,
+    Name,
+    NameConfirm,
 }
 
 // Struct for state manager

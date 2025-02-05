@@ -14,10 +14,8 @@ impl Viewport {
     // Updates the viewport type based on current state
     pub fn update(&mut self, state_manager: &crate::app::states::StateManager) {
         match state_manager.current_state {
-            // Main Menu
-            crate::app::states::StateType::MainMenu => {}
-            // New Game
-            crate::app::states::StateType::NewGame => {}
+            // All other states
+            _ => {}
         }
     }
 
@@ -38,9 +36,15 @@ impl Viewport {
 
                 text
             }
-            // New Game
-            crate::app::states::StateType::NewGame => {
+            // New Game - Enter name
+            crate::app::states::StateType::Name => {
                 let text = vec![Line::from("Name thyself...".yellow())];
+
+                text
+            }
+            // New Game - Confirm name
+            crate::app::states::StateType::NameConfirm => {
+                let text = vec![Line::from("Confirm name".yellow())];
 
                 text
             }
