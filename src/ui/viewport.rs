@@ -12,7 +12,7 @@ impl Viewport {
     }
 
     // Updates the viewport type based on current state
-    pub fn update(&mut self, state_manager: &crate::app::states::StateManager) {
+    pub fn update(&mut self, state_manager: &crate::core::states::StateManager) {
         match state_manager.current_state {
             // All other states
             _ => {}
@@ -20,10 +20,10 @@ impl Viewport {
     }
 
     // Renders the viewport based on current state
-    pub fn render(&self, state_manager: &crate::app::states::StateManager) -> Vec<Line> {
+    pub fn render(&self, state_manager: &crate::core::states::StateManager) -> Vec<Line> {
         match state_manager.current_state {
             // Main Menu
-            crate::app::states::StateType::MainMenu => {
+            crate::core::states::StateType::MainMenu => {
                 let text = vec![
                     Line::from(vec![
                         Span::raw("This "),
@@ -37,13 +37,13 @@ impl Viewport {
                 text
             }
             // New Game - Enter name
-            crate::app::states::StateType::Name => {
+            crate::core::states::StateType::Name => {
                 let text = vec![Line::from("Name thyself...".yellow())];
 
                 text
             }
             // New Game - Confirm name
-            crate::app::states::StateType::NameConfirm => {
+            crate::core::states::StateType::NameConfirm => {
                 let text = vec![Line::from("Confirm name".yellow())];
 
                 text

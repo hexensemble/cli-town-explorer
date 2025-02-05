@@ -20,12 +20,12 @@ impl Popup {
     }
 
     // Updates the popup based on current_state
-    pub fn update(&mut self, state_manager: &crate::app::states::StateManager) {
+    pub fn update(&mut self, state_manager: &crate::core::states::StateManager) {
         match state_manager.current_state {
             // New Game - Enter name
-            crate::app::states::StateType::Name => self.display = true,
+            crate::core::states::StateType::Name => self.display = true,
             // New Game - Confirm name
-            crate::app::states::StateType::NameConfirm => self.display = true,
+            crate::core::states::StateType::NameConfirm => self.display = true,
             // All other states
             _ => {
                 self.display = false;
@@ -36,11 +36,11 @@ impl Popup {
     // Renders the popup based on current state
     pub fn render(
         &mut self,
-        state_manager: &crate::app::states::StateManager,
+        state_manager: &crate::core::states::StateManager,
     ) -> (String, Vec<Line>) {
         match state_manager.current_state {
             // New Game - Enter name
-            crate::app::states::StateType::Name => {
+            crate::core::states::StateType::Name => {
                 self.title = "New Game".into();
                 let title = self.title.clone();
 
@@ -51,7 +51,7 @@ impl Popup {
                 (title, text)
             }
             // New Game - Confirm name
-            crate::app::states::StateType::NameConfirm => {
+            crate::core::states::StateType::NameConfirm => {
                 self.title = "New Game".into();
                 let title = self.title.clone();
 

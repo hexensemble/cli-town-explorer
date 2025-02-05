@@ -18,7 +18,7 @@ pub fn start() -> Result<()> {
 
 // Main loop
 fn run(mut terminal: DefaultTerminal) -> Result<()> {
-    let mut state_manager = crate::app::states::StateManager::new();
+    let mut state_manager = crate::core::states::StateManager::new();
     let mut menu = super::menu::Menu::new();
     let mut viewport = super::viewport::Viewport::new();
     let mut popup = super::popup::Popup::new();
@@ -35,7 +35,7 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
         })?;
 
         // Handle events
-        if !crate::app::events::EventHander::update(
+        if !crate::core::events::EventHander::update(
             &mut state_manager,
             &mut menu,
             &mut viewport,
@@ -49,7 +49,7 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
 // Ratatui rendering
 fn render(
     frame: &mut Frame,
-    state_manager: &crate::app::states::StateManager,
+    state_manager: &crate::core::states::StateManager,
     menu: &super::menu::Menu,
     viewport: &super::viewport::Viewport,
     popup: &mut super::popup::Popup,
