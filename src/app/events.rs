@@ -58,25 +58,24 @@ impl EventHander {
 }
 
 // Select the currently highlighted menu option
-// Menu options are displayed based on current state
 pub fn select(
     state_manager: &mut crate::app::states::StateManager,
-    menu: &mut crate::ui::menu::Menu,
+    menu: &crate::ui::menu::Menu,
 ) -> io::Result<bool> {
     match state_manager.current_state {
         // Main Menu
         super::states::StateType::MainMenu => match menu.highlighted() {
-            "New Game" => {
+            0 => {
                 state_manager.current_state = crate::app::states::StateType::Name;
                 state_manager.last_state = crate::app::states::StateType::MainMenu;
             }
-            "Exit" => return Ok(false),
+            1 => return Ok(false),
             _ => {}
         },
         // New Game - Confirm name
         super::states::StateType::NameConfirm => match menu.highlighted() {
-            "Confirm" => todo!(),
-            "Cancel" => state_manager.current_state = crate::app::states::StateType::Name,
+            0 => todo!(),
+            1 => state_manager.current_state = crate::app::states::StateType::Name,
             _ => {}
         },
         // All other menus
