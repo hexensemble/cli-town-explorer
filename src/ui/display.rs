@@ -19,6 +19,7 @@ pub fn start() -> Result<()> {
 // Main loop
 fn run(mut terminal: DefaultTerminal) -> Result<()> {
     let mut state_manager = crate::core::states::StateManager::new();
+    let mut world_manager = crate::world::manager::WorldManager::new();
     let mut menu = super::menu::Menu::new();
     let mut viewport = super::viewport::Viewport::new();
     let mut popup = super::popup::Popup::new();
@@ -37,6 +38,7 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
         // Handle events
         if !crate::core::events::EventHander::update(
             &mut state_manager,
+            &mut world_manager,
             &mut menu,
             &mut viewport,
             &mut popup,
