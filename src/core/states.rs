@@ -4,12 +4,13 @@ pub enum StateType {
     MainMenu,
     Name,
     NameConfirm,
+    Game,
+    GameQuit,
 }
 
 // Struct for state manager
 pub struct StateManager {
     pub current_state: StateType,
-    pub last_state: StateType,
 }
 
 // Functions for state manager
@@ -18,7 +19,6 @@ impl StateManager {
     pub fn new() -> Self {
         Self {
             current_state: StateType::MainMenu,
-            last_state: StateType::MainMenu,
         }
     }
 }

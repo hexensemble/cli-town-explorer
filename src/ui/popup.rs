@@ -22,10 +22,11 @@ impl Popup {
     // Updates the popup based on current_state
     pub fn update(&mut self, state_manager: &crate::core::states::StateManager) {
         match state_manager.current_state {
-            // New Game - Enter name
-            crate::core::states::StateType::Name => self.display = true,
-            // New Game - Confirm name
-            crate::core::states::StateType::NameConfirm => self.display = true,
+            // When pop up needs to be displayed
+            crate::core::states::StateType::Name
+            | crate::core::states::StateType::NameConfirm
+            | crate::core::states::StateType::GameQuit => self.display = true,
+
             // All other states
             _ => {
                 self.display = false;
@@ -55,9 +56,18 @@ impl Popup {
                 self.title = "New Game".into();
                 let title = self.title.clone();
 
-                let name = format!("{}", self.input);
+                let name = self.input.to_string();
 
-                let text = vec![Line::from("Your name is...".yellow()), Line::from(name)];
+                let text = vec![Line::from("Confirm name...".yellow()), Line::from(name)];
+
+                (title, text)
+            }
+            // Quit Game - Confirm
+            crate::core::states::StateType::GameQuit => {
+                self.title = "Quit Game".into();
+                let title = self.title.clone();
+
+                let text = vec![Line::from("Are you sure you want to quit?".yellow())];
 
                 (title, text)
             }

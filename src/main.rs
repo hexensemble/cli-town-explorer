@@ -1,5 +1,7 @@
 mod core;
+mod entities;
 mod ui;
+mod world;
 
 // Main function
 fn main() {
