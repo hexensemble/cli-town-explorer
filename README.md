@@ -6,14 +6,14 @@ CLI RPG (with AI-driven NPCs) made with Rust. 🧙‍♂️
 ✅ **Implemented:** 
 
 - 🌍 Procedural World Generation (Pre-generated using my [Town Generator](https://github.com/hexensemble/town-generator) 🏰)
-
+- 🖥️ Ratatui UI Implementation (Terminal-based UI for gameplay interactions)
+  
 🔧 **Building:**
 
-- 🖥️ Ratatui UI Implementation (Terminal-based UI for gameplay interactions)
+- 🌙 Day/Night and Weather System (Threaded time/weather simulation)
 
 📌 **Planned:**
 
-- 🌙 Day/Night and Weather System (Threaded time/weather simulation)
 - 🗣️ AI LLM Integration for NPC Dialogue (TinyLlama with Candle)
 - 📜 Basic Quest System (Simple generated quests)
 - 🎭 Character Creation, Skills, Stats, and Inventory
