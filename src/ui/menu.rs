@@ -5,7 +5,7 @@ use ratatui::widgets::ListItem;
 const OPTIONS_MAIN_MENU: [&str; 2] = ["New Game", "Exit"];
 const OPTIONS_NAME: [&str; 2] = ["Enter to Confirm", "Esc to Cancel"];
 const OPTIONS_NAME_CONFIRM: [&str; 2] = ["Enter to Confirm", "Esc to Cancel"];
-const OPTIONS_GAME: [&str; 1] = ["Quit"];
+const OPTIONS_GAME: [&str; 2] = ["Time", "Quit"];
 const OPTIONS_GAME_QUIT: [&str; 2] = ["Yes", "No"];
 
 // Struct for menu
@@ -53,8 +53,8 @@ impl Menu {
             crate::core::states::StateType::NameConfirm => {
                 self.menu_options = OPTIONS_NAME_CONFIRM.iter().map(|&s| s.into()).collect();
             }
-            // Game
-            crate::core::states::StateType::Game => {
+            // Game and Time
+            crate::core::states::StateType::Game | crate::core::states::StateType::Time => {
                 self.menu_options = OPTIONS_GAME.iter().map(|&s| s.into()).collect();
             }
             // Quit Game - Confirm

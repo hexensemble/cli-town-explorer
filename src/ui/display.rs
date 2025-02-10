@@ -20,6 +20,7 @@ pub fn start() -> Result<()> {
 fn run(mut terminal: DefaultTerminal) -> Result<()> {
     let mut state_manager = crate::core::states::StateManager::new();
     let mut world_manager = crate::world::manager::WorldManager::new();
+    let time_manager = crate::world::time::TimeManger::new();
     let mut menu = super::menu::Menu::new();
     let mut viewport = super::viewport::Viewport::new();
     let mut popup = super::popup::Popup::new();
@@ -32,13 +33,14 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
 
         // Render
         terminal.draw(|frame| {
-            render(frame, &state_manager, &menu, &viewport, &mut popup);
+            render(frame, &state_manager, &menu, &mut viewport, &mut popup);
         })?;
 
         // Handle events
         if !crate::core::events::EventHander::update(
             &mut state_manager,
             &mut world_manager,
+            &time_manager,
             &mut menu,
             &mut viewport,
             &mut popup,
@@ -53,7 +55,7 @@ fn render(
     frame: &mut Frame,
     state_manager: &crate::core::states::StateManager,
     menu: &super::menu::Menu,
-    viewport: &super::viewport::Viewport,
+    viewport: &mut super::viewport::Viewport,
     popup: &mut super::popup::Popup,
 ) {
     // Layout

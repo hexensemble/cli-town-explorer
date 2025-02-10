@@ -1,5 +1,6 @@
 use crossterm::event::{self, Event, KeyCode};
 use std::io;
+use std::time::Duration;
 
 // Struct for event handler
 pub struct EventHander {}
@@ -10,6 +11,7 @@ impl EventHander {
     pub fn update(
         state_manager: &mut super::states::StateManager,
         world_manager: &mut crate::world::manager::WorldManager,
+        time_manager: &crate::world::time::TimeManger,
         menu: &mut crate::ui::menu::Menu,
         viewport: &mut crate::ui::viewport::Viewport,
         popup: &mut crate::ui::popup::Popup,
@@ -48,6 +50,8 @@ impl EventHander {
 
                             popup.input.clear();
 
+                            viewport.time_arc_rwlock = Some(time_manager.start());
+
                             state_manager.current_state = super::states::StateType::Game;
                         }
                         KeyCode::Esc => {
@@ -62,16 +66,18 @@ impl EventHander {
                 Ok(true)
             } // All other states
             _ => {
-                if let Event::Key(key) = event::read()? {
-                    match key.code {
-                        KeyCode::Up => menu.previous(),
-                        KeyCode::Down => menu.next(),
-                        KeyCode::Enter => {
-                            if !select(state_manager, menu)? {
-                                return Ok(false);
+                if event::poll(Duration::from_millis(100))? {
+                    if let Event::Key(key) = event::read()? {
+                        match key.code {
+                            KeyCode::Up => menu.previous(),
+                            KeyCode::Down => menu.next(),
+                            KeyCode::Enter => {
+                                if !select(state_manager, menu)? {
+                                    return Ok(false);
+                                }
                             }
+                            _ => {}
                         }
-                        _ => {}
                     }
                 }
 
@@ -96,11 +102,18 @@ pub fn select(
             1 => return Ok(false),
             _ => {}
         },
-        // Game
-        super::states::StateType::Game => {
-            if menu.selected_index == 0 {
-                state_manager.current_state = super::states::StateType::GameQuit;
-                menu.selected_index = 0;
+        // Game and Time
+        super::states::StateType::Game | super::states::StateType::Time => {
+            match menu.selected_index {
+                0 => {
+                    state_manager.current_state = super::states::StateType::Time;
+                    menu.selected_index = 0;
+                }
+                1 => {
+                    state_manager.current_state = super::states::StateType::GameQuit;
+                    menu.selected_index = 0;
+                }
+                _ => {}
             }
         }
         // Quit Game - Confirm
