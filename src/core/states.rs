@@ -6,6 +6,7 @@ pub enum StateType {
     NameConfirm,
     Game,
     GameQuit,
+    Time,
 }
 
 // Struct for state manager
