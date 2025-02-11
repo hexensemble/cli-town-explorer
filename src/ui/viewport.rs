@@ -27,38 +27,45 @@ impl Viewport {
             // Main Menu
             crate::core::states::StateType::MainMenu => {
                 let text = vec![
+                    Line::from("This is a small CLI app designed to showcase my Rust skills in a fun and interactive way."),
+                    Line::from("It’s a simple RPG where you can explore towns and interact with the world."),
+                    Line::from("Features will be explained as you move about."),
+                    Line::from("\n"),
                     Line::from(vec![
-                        Span::raw("This "),
-                        Span::styled("is", Style::new().green().italic()),
-                        "...".into(),
-                    ]),
-                    Line::from("the".red()),
-                    "viewport when main menu is active".into(),
+                        Span::raw("Select "),
+                        Span::styled("New Game", Style::new().green().bold()),
+                        Span::raw(" when you're ready to begin."),
+                     ]),
                 ];
 
                 text
             }
             // New Game - Enter name
             crate::core::states::StateType::Name => {
-                let text = vec![Line::from("Name thyself...".yellow())];
+                let text = vec![Line::from("Name thyself...")];
 
                 text
             }
             // New Game - Confirm name
             crate::core::states::StateType::NameConfirm => {
-                let text = vec![Line::from("Confirm name...".yellow())];
+                let text = vec![Line::from("Confirm name...")];
 
                 text
             }
             // Game
             crate::core::states::StateType::Game => {
-                let text = vec![Line::from("The game begins".yellow())];
+                let text = vec![Line::from("The game begins..."), 
+                    Line::from("\n"), 
+                    Line::from("As you’ve already seen, we have a terminal-based UI running with the help of Ratatui."), 
+                    Line::from("\n"), 
+                    Line::from("Select an option from the menu below...")
+                ];
 
                 text
             }
             // Quit Game - Confirm
             crate::core::states::StateType::GameQuit => {
-                let text = vec![Line::from("Are you sure you want to quit?".yellow())];
+                let text = vec![Line::from("Are you sure you want to quit?")];
 
                 text
             }
@@ -80,7 +87,11 @@ impl Viewport {
                     }
                 }
 
-                let text = vec![Line::from(self.time.clone().yellow())];
+                let text = vec![
+                    Line::from(self.time.clone()),
+                    Line::from("\n"),
+                    Line::from("Time runs in its own thread and updates continuously."),
+                ];
 
                 text
             }

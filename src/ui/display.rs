@@ -99,7 +99,7 @@ fn render(
     if popup.display {
         let (popup_title, popup_text) = popup.render(state_manager);
 
-        let popup_area = centered_rect(40, 10, area);
+        let popup_area = centered_rect(40, 15, area);
 
         let popup_block = Paragraph::new(popup_text)
             .block(

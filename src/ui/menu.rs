@@ -72,7 +72,9 @@ impl Menu {
                 let list: Vec<ListItem> = self
                     .menu_options
                     .iter()
-                    .map(|option| ListItem::new(option.clone()).style(Style::default()))
+                    .map(|option| {
+                        ListItem::new(option.clone()).style(Style::default().fg(Color::Green))
+                    })
                     .collect();
 
                 list
@@ -86,10 +88,10 @@ impl Menu {
                     .map(|(i, option)| {
                         let style = if i == self.selected_index {
                             Style::default()
-                                .fg(Color::Green)
+                                .fg(Color::Yellow)
                                 .add_modifier(Modifier::BOLD)
                         } else {
-                            Style::default()
+                            Style::default().fg(Color::Green)
                         };
                         ListItem::new(option.clone()).style(style)
                     })

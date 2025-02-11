@@ -47,7 +47,11 @@ impl Popup {
 
                 let prompt = format!("> {}_", self.input);
 
-                let text = vec![Line::from("Name thyself...".yellow()), Line::from(prompt)];
+                let text = vec![
+                    Line::from("\n"),
+                    Line::from("Name thyself..."),
+                    Line::from(prompt.yellow()),
+                ];
 
                 (title, text)
             }
@@ -58,7 +62,11 @@ impl Popup {
 
                 let name = self.input.to_string();
 
-                let text = vec![Line::from("Confirm name...".yellow()), Line::from(name)];
+                let text = vec![
+                    Line::from("\n"),
+                    Line::from("Confirm name..."),
+                    Line::from(name.yellow()),
+                ];
 
                 (title, text)
             }
@@ -67,7 +75,10 @@ impl Popup {
                 self.title = "Quit Game".into();
                 let title = self.title.clone();
 
-                let text = vec![Line::from("Are you sure you want to quit?".yellow())];
+                let text = vec![
+                    Line::from("\n"),
+                    Line::from("Are you sure you want to quit?"),
+                ];
 
                 (title, text)
             }
@@ -76,7 +87,7 @@ impl Popup {
                 self.title = String::new();
                 let title = self.title.clone();
 
-                let text = vec![Line::from("".yellow())];
+                let text = vec![Line::from("")];
 
                 (title, text)
             }
