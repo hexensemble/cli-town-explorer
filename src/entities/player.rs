@@ -1,7 +1,7 @@
 // Struct for player
 pub struct Player {
-    id: u32,
-    name: String,
+    pub id: u32,
+    pub name: String,
 }
 
 // Functions for player
