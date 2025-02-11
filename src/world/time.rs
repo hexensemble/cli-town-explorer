@@ -11,7 +11,7 @@ pub enum Phase {
     Night,
 }
 
-// Struct for representing game time
+// Struct for game time
 #[derive(Debug, Clone)]
 pub struct GameTime {
     pub tick: u32,
@@ -31,7 +31,7 @@ impl GameTime {
     }
 }
 
-// Struct for representing time manager
+// Struct for time manager
 pub struct TimeManger {}
 
 // Functions for time manager

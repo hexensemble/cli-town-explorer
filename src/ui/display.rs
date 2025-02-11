@@ -23,17 +23,27 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
     let time_manager = crate::world::time::TimeManger::new();
     let mut menu = super::menu::Menu::new();
     let mut viewport = super::viewport::Viewport::new();
+    let mut stats = super::stats::Stats::new();
     let mut popup = super::popup::Popup::new();
 
     loop {
         // Update
         menu.update(&state_manager);
         viewport.update(&state_manager);
+        stats.update(&state_manager);
         popup.update(&state_manager);
 
         // Render
         terminal.draw(|frame| {
-            render(frame, &state_manager, &menu, &mut viewport, &mut popup);
+            render(
+                frame,
+                &state_manager,
+                &world_manager,
+                &menu,
+                &mut viewport,
+                &mut stats,
+                &mut popup,
+            );
         })?;
 
         // Handle events
@@ -43,6 +53,7 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
             &time_manager,
             &mut menu,
             &mut viewport,
+            &mut stats,
             &mut popup,
         )? {
             break Ok(());
@@ -54,8 +65,10 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
 fn render(
     frame: &mut Frame,
     state_manager: &crate::core::states::StateManager,
+    world_manager: &crate::world::manager::WorldManager,
     menu: &super::menu::Menu,
     viewport: &mut super::viewport::Viewport,
+    stats: &mut super::stats::Stats,
     popup: &mut super::popup::Popup,
 ) {
     // Layout
@@ -77,13 +90,6 @@ fn render(
         ])
         .split(vertical[0]);
 
-    // Viewport
-    let viewport_text = viewport.render(state_manager);
-
-    let viewport_block = Paragraph::new(viewport_text)
-        .block(Block::default().title("Viewport").borders(Borders::ALL));
-    frame.render_widget(viewport_block, horizontal[0]);
-
     // Menu
     let menu_options = menu.render(state_manager);
 
@@ -91,8 +97,18 @@ fn render(
         List::new(menu_options).block(Block::default().title("Menu").borders(Borders::ALL));
     frame.render_widget(menu_block, horizontal[1]);
 
+    // Viewport
+    let viewport_text = viewport.render(state_manager);
+
+    let viewport_block = Paragraph::new(viewport_text)
+        .block(Block::default().title("Viewport").borders(Borders::ALL));
+    frame.render_widget(viewport_block, horizontal[0]);
+
     // Stats
-    let stats_block = Block::default().title("Stats").borders(Borders::ALL);
+    let stats_text = stats.render(state_manager, world_manager);
+
+    let stats_block =
+        Paragraph::new(stats_text).block(Block::default().title("Stats").borders(Borders::ALL));
     frame.render_widget(stats_block, vertical[1]);
 
     // Popup (if required)

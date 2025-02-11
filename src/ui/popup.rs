@@ -19,7 +19,7 @@ impl Popup {
         }
     }
 
-    // Updates the popup based on current_state
+    // Update popup based on current_state
     pub fn update(&mut self, state_manager: &crate::core::states::StateManager) {
         match state_manager.current_state {
             // When pop up needs to be displayed
@@ -34,7 +34,7 @@ impl Popup {
         }
     }
 
-    // Renders the popup based on current state
+    // Render popup based on current state
     pub fn render(
         &mut self,
         state_manager: &crate::core::states::StateManager,

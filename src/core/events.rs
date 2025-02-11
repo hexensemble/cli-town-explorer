@@ -14,6 +14,7 @@ impl EventHander {
         time_manager: &crate::world::time::TimeManger,
         menu: &mut crate::ui::menu::Menu,
         viewport: &mut crate::ui::viewport::Viewport,
+        _stats: &mut crate::ui::stats::Stats,
         popup: &mut crate::ui::popup::Popup,
     ) -> io::Result<bool> {
         match state_manager.current_state {
@@ -44,9 +45,10 @@ impl EventHander {
                 if let Event::Key(key) = event::read()? {
                     match key.code {
                         KeyCode::Enter => {
-                            let player =
-                                crate::entities::player::Player::new(666, popup.input.clone());
-                            world_manager.players.push(player);
+                            world_manager.player = Some(crate::entities::player::Player::new(
+                                666,
+                                popup.input.clone(),
+                            ));
 
                             popup.input.clear();
 
