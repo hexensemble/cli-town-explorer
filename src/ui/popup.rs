@@ -1,16 +1,16 @@
 use ratatui::style::Stylize;
 use ratatui::text::Line;
 
-// Struct for popup
+// Struct for Pop Up
 pub struct Popup {
     pub display: bool,
     title: String,
     pub input: String,
 }
 
-// Functions for popup
+// Functions for Pop Up
 impl Popup {
-    // Create a new popup
+    // Create a new Pop Up
     pub fn new() -> Self {
         Self {
             display: false,
@@ -19,10 +19,10 @@ impl Popup {
         }
     }
 
-    // Update popup based on current_state
-    pub fn update(&mut self, state_manager: &crate::core::states::StateManager) {
-        match state_manager.current_state {
-            // When pop up needs to be displayed
+    // Updates if the Pop Up should be displayed based on current_state
+    pub fn update(&mut self, managers: &super::display::Managers) {
+        match managers.state_manager.current_state {
+            // New Game and Quit Game
             crate::core::states::StateType::Name
             | crate::core::states::StateType::NameConfirm
             | crate::core::states::StateType::GameQuit => self.display = true,
@@ -34,13 +34,10 @@ impl Popup {
         }
     }
 
-    // Render popup based on current state
-    pub fn render(
-        &mut self,
-        state_manager: &crate::core::states::StateManager,
-    ) -> (String, Vec<Line>) {
-        match state_manager.current_state {
-            // New Game - Enter name
+    // Renders the Pop Up based on current state
+    pub fn render(&mut self, managers: &super::display::Managers) -> (String, Vec<Line>) {
+        match managers.state_manager.current_state {
+            // New Game (Enter Name)
             crate::core::states::StateType::Name => {
                 self.title = "New Game".into();
                 let title = self.title.clone();
@@ -55,7 +52,7 @@ impl Popup {
 
                 (title, text)
             }
-            // New Game - Confirm name
+            // New Game (Confirm Name)
             crate::core::states::StateType::NameConfirm => {
                 self.title = "New Game".into();
                 let title = self.title.clone();
@@ -70,7 +67,7 @@ impl Popup {
 
                 (title, text)
             }
-            // Quit Game - Confirm
+            // Quit Game
             crate::core::states::StateType::GameQuit => {
                 self.title = "Quit Game".into();
                 let title = self.title.clone();

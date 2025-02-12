@@ -5,18 +5,18 @@ use ratatui::widgets::ListItem;
 const OPTIONS_MAIN_MENU: [&str; 2] = ["New Game", "Exit"];
 const OPTIONS_NAME: [&str; 2] = ["Enter to Confirm", "Esc to Cancel"];
 const OPTIONS_NAME_CONFIRM: [&str; 2] = ["Enter to Confirm", "Esc to Cancel"];
-const OPTIONS_GAME: [&str; 2] = ["Time", "Quit"];
+const OPTIONS_GAME: [&str; 3] = ["Time", "Weather", "Quit"];
 const OPTIONS_GAME_QUIT: [&str; 2] = ["Yes", "No"];
 
-// Struct for menu
+// Struct for Menu
 pub struct Menu {
     menu_options: Vec<String>,
     pub selected_index: usize,
 }
 
-// Functions for menu
+// Functions for Menu
 impl Menu {
-    // Create a new menu, defaults to Main Menu
+    // Create a new Menu, defaults to Main Menu
     pub fn new() -> Self {
         Self {
             menu_options: OPTIONS_MAIN_MENU.iter().map(|&s| s.into()).collect(),
@@ -38,35 +38,37 @@ impl Menu {
         }
     }
 
-    // Updates the menu type and options based on current state
-    pub fn update(&mut self, state_manager: &crate::core::states::StateManager) {
-        match state_manager.current_state {
+    // Updates the menu options based on current state
+    pub fn update(&mut self, managers: &super::display::Managers) {
+        match managers.state_manager.current_state {
             // Main Menu
             crate::core::states::StateType::MainMenu => {
                 self.menu_options = OPTIONS_MAIN_MENU.iter().map(|&s| s.into()).collect();
             }
-            // New Game - Enter name
+            // New Game (Enter Name)
             crate::core::states::StateType::Name => {
                 self.menu_options = OPTIONS_NAME.iter().map(|&s| s.into()).collect();
             }
-            // New Game - Confirm name
+            // New Game (Confirm Name)
             crate::core::states::StateType::NameConfirm => {
                 self.menu_options = OPTIONS_NAME_CONFIRM.iter().map(|&s| s.into()).collect();
             }
-            // Game and Time
-            crate::core::states::StateType::Game | crate::core::states::StateType::Time => {
+            // Game, Time, and Weather
+            crate::core::states::StateType::Game
+            | crate::core::states::StateType::Time
+            | crate::core::states::StateType::Weather => {
                 self.menu_options = OPTIONS_GAME.iter().map(|&s| s.into()).collect();
             }
-            // Quit Game - Confirm
+            // Quit Game
             crate::core::states::StateType::GameQuit => {
                 self.menu_options = OPTIONS_GAME_QUIT.iter().map(|&s| s.into()).collect();
             }
         }
     }
 
-    // Renders the menu based on current State
-    pub fn render(&self, state_manager: &crate::core::states::StateManager) -> Vec<ListItem> {
-        match state_manager.current_state {
+    // Renders the Menu based on current state
+    pub fn render(&self, managers: &super::display::Managers) -> Vec<ListItem> {
+        match managers.state_manager.current_state {
             // New Game
             crate::core::states::StateType::Name | crate::core::states::StateType::NameConfirm => {
                 let list: Vec<ListItem> = self
