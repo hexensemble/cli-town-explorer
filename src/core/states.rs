@@ -7,16 +7,17 @@ pub enum StateType {
     Game,
     GameQuit,
     Time,
+    Weather,
 }
 
-// Struct for state manager
+// Struct for State Manager
 pub struct StateManager {
     pub current_state: StateType,
 }
 
-// Functions for state manager
+// Functions for State Manager
 impl StateManager {
-    // Create a new state manager, defaults to MainMenu
+    // Create a new State Manager, defaults to Main Menu
     pub fn new() -> Self {
         Self {
             current_state: StateType::MainMenu,

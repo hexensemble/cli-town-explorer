@@ -4,6 +4,22 @@ use ratatui::prelude::Rect;
 use ratatui::widgets::{Block, BorderType, Borders, Clear, List, Paragraph};
 use ratatui::{DefaultTerminal, Frame};
 
+// Struct for Managers
+pub struct Managers {
+    pub state_manager: crate::core::states::StateManager,
+    pub world_manager: crate::world::manager::WorldManager,
+    pub time_manager: crate::world::time::TimeManger,
+    pub weather_manager: crate::world::weather::WeatherManager,
+}
+
+// Struct for UI Components
+pub struct UIComponents {
+    pub menu: super::menu::Menu,
+    pub viewport: super::viewport::Viewport,
+    stats: super::stats::Stats,
+    pub popup: super::popup::Popup,
+}
+
 // Starts Ratatui and launches the main loop with run()
 // Restores original terminal when main loop in run() finishes
 pub fn start() -> Result<()> {
@@ -18,59 +34,39 @@ pub fn start() -> Result<()> {
 
 // Main loop
 fn run(mut terminal: DefaultTerminal) -> Result<()> {
-    let mut state_manager = crate::core::states::StateManager::new();
-    let mut world_manager = crate::world::manager::WorldManager::new();
-    let time_manager = crate::world::time::TimeManger::new();
-    let mut menu = super::menu::Menu::new();
-    let mut viewport = super::viewport::Viewport::new();
-    let mut stats = super::stats::Stats::new();
-    let mut popup = super::popup::Popup::new();
+    let mut managers = Managers {
+        state_manager: crate::core::states::StateManager::new(),
+        world_manager: crate::world::manager::WorldManager::new(),
+        time_manager: crate::world::time::TimeManger::new(),
+        weather_manager: crate::world::weather::WeatherManager::new(),
+    };
+
+    let mut ui_components = UIComponents {
+        menu: super::menu::Menu::new(),
+        viewport: super::viewport::Viewport::new(),
+        stats: super::stats::Stats::new(),
+        popup: super::popup::Popup::new(),
+    };
 
     loop {
         // Update
-        menu.update(&state_manager);
-        viewport.update(&state_manager);
-        stats.update(&state_manager);
-        popup.update(&state_manager);
+        ui_components.menu.update(&managers);
+        ui_components.popup.update(&managers);
 
         // Render
         terminal.draw(|frame| {
-            render(
-                frame,
-                &state_manager,
-                &world_manager,
-                &menu,
-                &mut viewport,
-                &mut stats,
-                &mut popup,
-            );
+            render(frame, &managers, &mut ui_components);
         })?;
 
         // Handle events
-        if !crate::core::events::EventHander::update(
-            &mut state_manager,
-            &mut world_manager,
-            &time_manager,
-            &mut menu,
-            &mut viewport,
-            &mut stats,
-            &mut popup,
-        )? {
+        if !crate::core::events::EventHander::update(&mut managers, &mut ui_components)? {
             break Ok(());
         }
     }
 }
 
 // Ratatui rendering
-fn render(
-    frame: &mut Frame,
-    state_manager: &crate::core::states::StateManager,
-    world_manager: &crate::world::manager::WorldManager,
-    menu: &super::menu::Menu,
-    viewport: &mut super::viewport::Viewport,
-    stats: &mut super::stats::Stats,
-    popup: &mut super::popup::Popup,
-) {
+fn render(frame: &mut Frame, managers: &Managers, ui_components: &mut UIComponents) {
     // Layout
     let area = frame.area();
 
@@ -91,29 +87,29 @@ fn render(
         .split(vertical[0]);
 
     // Menu
-    let menu_options = menu.render(state_manager);
+    let menu_options = ui_components.menu.render(managers);
 
     let menu_block =
         List::new(menu_options).block(Block::default().title("Menu").borders(Borders::ALL));
     frame.render_widget(menu_block, horizontal[1]);
 
     // Viewport
-    let viewport_text = viewport.render(state_manager);
+    let viewport_text = ui_components.viewport.render(managers);
 
     let viewport_block = Paragraph::new(viewport_text)
         .block(Block::default().title("Viewport").borders(Borders::ALL));
     frame.render_widget(viewport_block, horizontal[0]);
 
     // Stats
-    let stats_text = stats.render(state_manager, world_manager);
+    let stats_text = ui_components.stats.render(managers);
 
     let stats_block =
         Paragraph::new(stats_text).block(Block::default().title("Stats").borders(Borders::ALL));
     frame.render_widget(stats_block, vertical[1]);
 
     // Popup (if required)
-    if popup.display {
-        let (popup_title, popup_text) = popup.render(state_manager);
+    if ui_components.popup.display {
+        let (popup_title, popup_text) = ui_components.popup.render(managers);
 
         let popup_area = centered_rect(40, 15, area);
 

@@ -11,7 +11,7 @@ pub enum Phase {
     Night,
 }
 
-// Struct for game time
+// Struct for Game Time
 #[derive(Debug, Clone)]
 pub struct GameTime {
     pub tick: u32,
@@ -19,9 +19,9 @@ pub struct GameTime {
     pub phase: Phase,
 }
 
-// Functions for game time
+// Functions for Game Time
 impl GameTime {
-    // Create a new game time
+    // Create a new Game Time, starts at dawn on the first day
     fn new() -> Self {
         Self {
             tick: 0,
@@ -31,17 +31,17 @@ impl GameTime {
     }
 }
 
-// Struct for time manager
+// Struct for Time Manager
 pub struct TimeManger {}
 
-// Functions for time manager
+// Functions for Time Manager
 impl TimeManger {
-    // Create a new time manager
+    // Create a new Time Manager
     pub fn new() -> Self {
         Self {}
     }
 
-    // Start time, spawns in seperate thread
+    // Start time, spawns in new thread
     pub fn start(&self) -> Arc<RwLock<GameTime>> {
         let game_time = Arc::new(RwLock::new(GameTime::new()));
         let game_time_arc_clone = Arc::clone(&game_time);
