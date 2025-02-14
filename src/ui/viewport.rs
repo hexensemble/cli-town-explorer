@@ -1,11 +1,8 @@
 use ratatui::style::{Style, Stylize};
 use ratatui::text::{Line, Span};
-use std::sync::{Arc, RwLock};
 
 // Struct for Viewport
 pub struct Viewport {
-    pub time_arc_rwlock: Option<Arc<RwLock<crate::world::time::GameTime>>>,
-    pub weather_arc_rwlock: Option<Arc<RwLock<crate::world::weather::GameWeather>>>,
     time: String,
     weather: String,
 }
@@ -15,8 +12,6 @@ impl Viewport {
     // Create a new Viewport
     pub fn new() -> Self {
         Self {
-            time_arc_rwlock: None,
-            weather_arc_rwlock: None,
             time: String::new(),
             weather: String::new(),
         }
@@ -36,7 +31,7 @@ impl Viewport {
                         Span::raw("Select "),
                         Span::styled("New Game", Style::new().green().bold()),
                         Span::raw(" when you're ready to begin."),
-                     ]),
+    ]),
                 ]
             }
             // New Game (Enter Name)
@@ -57,13 +52,27 @@ impl Viewport {
                     Line::from("Select an option from the menu below...")
                 ]
             }
+            // Save Game (Success)
+            crate::core::states::StateType::GameSaveSuccess => {
+                vec![
+                    Line::from("Game saved successfully."),
+                    Line::from("\n"),
+                    Line::from(
+                        "All game data has been serialized and saved to JSON file: saves/save.json",
+                    ),
+                ]
+            }
+            // Save Game (Error)
+            crate::core::states::StateType::GameSaveError => {
+                vec![Line::from("Error saving game!")]
+            }
             // Quit Game
             crate::core::states::StateType::GameQuit => {
                 vec![Line::from("Are you sure you want to quit?")]
             }
             // Time
             crate::core::states::StateType::Time => {
-                match &self.time_arc_rwlock {
+                match &managers.time_manager.time_arc_rwlock {
                     Some(game_time) => {
                         let game_time_unwrapped = game_time.read().unwrap();
                         self.time = format!(
@@ -87,15 +96,15 @@ impl Viewport {
             }
             // Weather
             crate::core::states::StateType::Weather => {
-                match &self.weather_arc_rwlock {
+                match &managers.weather_manager.weather_arc_rwlock {
                     Some(weather) => {
                         let weather_unwrapped = weather.read().unwrap();
                         self.weather =
                             format!("The weather is {:?}", weather_unwrapped.weather_type)
                     }
                     None => {
-                        eprintln!("Weather not initialized");
-                        self.weather = "Weather not initialized".into()
+                        eprintln!("GameWeather not initialized");
+                        self.weather = "GameWeather not initialized".into()
                     }
                 }
 

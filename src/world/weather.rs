@@ -1,48 +1,27 @@
 use rand::Rng;
+use serde::Serialize;
 use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::Duration;
 use strum::EnumCount;
 use strum_macros::{EnumCount, EnumIter};
 
-// Enum for weather types
-#[derive(Debug, Clone, EnumCount, EnumIter)]
-pub enum WeatherType {
-    Sunny,
-    Raining,
-    Windy,
-    Stormy,
-    Snowing,
-}
-
-// Struct for Game Weather
-#[derive(Debug, Clone)]
-pub struct GameWeather {
-    pub weather_type: WeatherType,
-}
-
-// Functions for Game Weather
-impl GameWeather {
-    // Create a new Game Weather, defaults to Sunny
-    fn new() -> Self {
-        Self {
-            weather_type: WeatherType::Sunny,
-        }
-    }
-}
-
 // Struct for Weather Manager
-pub struct WeatherManager {}
+pub struct WeatherManager {
+    pub weather_arc_rwlock: Option<Arc<RwLock<GameWeather>>>,
+}
 
 // Fucntions for Weather Manager
 impl WeatherManager {
     // Create a new Weather Manager
     pub fn new() -> Self {
-        Self {}
+        Self {
+            weather_arc_rwlock: None,
+        }
     }
 
     // Start weather, spawns in a new thread
-    pub fn start(&self) -> Arc<RwLock<GameWeather>> {
+    pub fn start(&mut self) {
         let game_weather = Arc::new(RwLock::new(GameWeather::new()));
         let game_weather_arc_clone = Arc::clone(&game_weather);
 
@@ -66,7 +45,7 @@ impl WeatherManager {
             thread::sleep(Duration::from_secs(10));
         });
 
-        game_weather
+        self.weather_arc_rwlock = Some(game_weather);
     }
 }
 
@@ -74,4 +53,30 @@ impl WeatherManager {
 fn roll_dice(dice_size: u32) -> u32 {
     let mut rng = rand::rng();
     rng.random_range(1..=dice_size)
+}
+
+// Struct for Game Weather
+#[derive(Debug, Clone, Serialize)]
+pub struct GameWeather {
+    pub weather_type: WeatherType,
+}
+
+// Functions for Game Weather
+impl GameWeather {
+    // Create a new Game Weather, defaults to Sunny
+    fn new() -> Self {
+        Self {
+            weather_type: WeatherType::Sunny,
+        }
+    }
+}
+
+// Enum for weather types
+#[derive(Debug, Clone, EnumCount, EnumIter, Serialize)]
+pub enum WeatherType {
+    Sunny,
+    Raining,
+    Windy,
+    Stormy,
+    Snowing,
 }

@@ -1,4 +1,7 @@
+use serde::Serialize;
+
 // Struct for player
+#[derive(Clone, Serialize)]
 pub struct Player {
     pub id: u32,
     pub name: String,

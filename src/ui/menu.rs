@@ -3,9 +3,9 @@ use ratatui::widgets::ListItem;
 
 // Consts for menu options
 const OPTIONS_MAIN_MENU: [&str; 2] = ["New Game", "Exit"];
-const OPTIONS_NAME: [&str; 2] = ["Enter to Confirm", "Esc to Cancel"];
-const OPTIONS_NAME_CONFIRM: [&str; 2] = ["Enter to Confirm", "Esc to Cancel"];
-const OPTIONS_GAME: [&str; 3] = ["Time", "Weather", "Quit"];
+const OPTIONS_CONFIRM: [&str; 2] = ["Enter to Confirm", "Esc to Cancel"];
+const OPTIONS_CONTINUE: [&str; 1] = ["Enter to Continue"];
+const OPTIONS_GAME: [&str; 4] = ["Time", "Weather", "Save", "Quit"];
 const OPTIONS_GAME_QUIT: [&str; 2] = ["Yes", "No"];
 
 // Struct for Menu
@@ -45,19 +45,20 @@ impl Menu {
             crate::core::states::StateType::MainMenu => {
                 self.menu_options = OPTIONS_MAIN_MENU.iter().map(|&s| s.into()).collect();
             }
-            // New Game (Enter Name)
-            crate::core::states::StateType::Name => {
-                self.menu_options = OPTIONS_NAME.iter().map(|&s| s.into()).collect();
-            }
-            // New Game (Confirm Name)
-            crate::core::states::StateType::NameConfirm => {
-                self.menu_options = OPTIONS_NAME_CONFIRM.iter().map(|&s| s.into()).collect();
+            // New Game
+            crate::core::states::StateType::Name | crate::core::states::StateType::NameConfirm => {
+                self.menu_options = OPTIONS_CONFIRM.iter().map(|&s| s.into()).collect();
             }
             // Game, Time, and Weather
             crate::core::states::StateType::Game
             | crate::core::states::StateType::Time
             | crate::core::states::StateType::Weather => {
                 self.menu_options = OPTIONS_GAME.iter().map(|&s| s.into()).collect();
+            }
+            // Save Game
+            crate::core::states::StateType::GameSaveSuccess
+            | crate::core::states::StateType::GameSaveError => {
+                self.menu_options = OPTIONS_CONTINUE.iter().map(|&s| s.into()).collect();
             }
             // Quit Game
             crate::core::states::StateType::GameQuit => {
@@ -69,14 +70,15 @@ impl Menu {
     // Renders the Menu based on current state
     pub fn render(&self, managers: &super::display::Managers) -> Vec<ListItem> {
         match managers.state_manager.current_state {
-            // New Game
-            crate::core::states::StateType::Name | crate::core::states::StateType::NameConfirm => {
+            // New Game, and Save Game
+            crate::core::states::StateType::Name
+            | crate::core::states::StateType::NameConfirm
+            | crate::core::states::StateType::GameSaveSuccess
+            | crate::core::states::StateType::GameSaveError => {
                 let list: Vec<ListItem> = self
                     .menu_options
                     .iter()
-                    .map(|option| {
-                        ListItem::new(option.clone()).style(Style::default().fg(Color::Green))
-                    })
+                    .map(|option| ListItem::new(option.clone()).style(Style::default()))
                     .collect();
 
                 list

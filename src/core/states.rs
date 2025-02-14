@@ -5,6 +5,8 @@ pub enum StateType {
     Name,
     NameConfirm,
     Game,
+    GameSaveSuccess,
+    GameSaveError,
     GameQuit,
     Time,
     Weather,

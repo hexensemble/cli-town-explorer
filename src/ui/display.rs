@@ -10,6 +10,7 @@ pub struct Managers {
     pub world_manager: crate::world::manager::WorldManager,
     pub time_manager: crate::world::time::TimeManger,
     pub weather_manager: crate::world::weather::WeatherManager,
+    pub save_manager: crate::core::save::SaveGameManager,
 }
 
 // Struct for UI Components
@@ -39,6 +40,7 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
         world_manager: crate::world::manager::WorldManager::new(),
         time_manager: crate::world::time::TimeManger::new(),
         weather_manager: crate::world::weather::WeatherManager::new(),
+        save_manager: crate::core::save::SaveGameManager::new(),
     };
 
     let mut ui_components = UIComponents {

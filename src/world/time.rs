@@ -1,48 +1,24 @@
+use serde::Serialize;
 use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::{Duration, Instant};
 
-// Enum for day/night phases
-#[derive(Debug, Clone)]
-pub enum Phase {
-    Dawn,
-    Day,
-    Dusk,
-    Night,
-}
-
-// Struct for Game Time
-#[derive(Debug, Clone)]
-pub struct GameTime {
-    pub tick: u32,
-    pub day: u32,
-    pub phase: Phase,
-}
-
-// Functions for Game Time
-impl GameTime {
-    // Create a new Game Time, starts at dawn on the first day
-    fn new() -> Self {
-        Self {
-            tick: 0,
-            day: 1,
-            phase: Phase::Dawn,
-        }
-    }
-}
-
 // Struct for Time Manager
-pub struct TimeManger {}
+pub struct TimeManger {
+    pub time_arc_rwlock: Option<Arc<RwLock<GameTime>>>,
+}
 
 // Functions for Time Manager
 impl TimeManger {
     // Create a new Time Manager
     pub fn new() -> Self {
-        Self {}
+        Self {
+            time_arc_rwlock: None,
+        }
     }
 
     // Start time, spawns in new thread
-    pub fn start(&self) -> Arc<RwLock<GameTime>> {
+    pub fn start(&mut self) {
         let game_time = Arc::new(RwLock::new(GameTime::new()));
         let game_time_arc_clone = Arc::clone(&game_time);
 
@@ -118,6 +94,35 @@ impl TimeManger {
             }
         });
 
-        game_time
+        self.time_arc_rwlock = Some(game_time);
     }
+}
+
+// Struct for Game Time
+#[derive(Debug, Clone, Serialize)]
+pub struct GameTime {
+    pub tick: u32,
+    pub day: u32,
+    pub phase: Phase,
+}
+
+// Functions for Game Time
+impl GameTime {
+    // Create a new Game Time, starts at dawn on the first day
+    fn new() -> Self {
+        Self {
+            tick: 0,
+            day: 1,
+            phase: Phase::Dawn,
+        }
+    }
+}
+
+// Enum for day/night phases
+#[derive(Debug, Clone, Serialize)]
+pub enum Phase {
+    Dawn,
+    Day,
+    Dusk,
+    Night,
 }

@@ -13,8 +13,10 @@ impl Stats {
     // Renders the Stats based on current state
     pub fn render(&self, managers: &super::display::Managers) -> Vec<Line> {
         match managers.state_manager.current_state {
-            // Game, Quit Game, Time, and Weather
+            // Game, Save Game, Quit Game, Time, and Weather
             crate::core::states::StateType::Game
+            | crate::core::states::StateType::GameSaveSuccess
+            | crate::core::states::StateType::GameSaveError
             | crate::core::states::StateType::GameQuit
             | crate::core::states::StateType::Time
             | crate::core::states::StateType::Weather => {

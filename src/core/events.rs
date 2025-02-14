@@ -59,7 +59,18 @@ impl EventHander {
                 }
 
                 Ok(true)
-            } // All other states (will use Select function)
+            }
+            // Save Game
+            super::states::StateType::GameSaveSuccess | super::states::StateType::GameSaveError => {
+                if let Event::Key(key) = event::read()? {
+                    if key.code == KeyCode::Enter {
+                        managers.state_manager.current_state = super::states::StateType::Game;
+                    }
+                }
+
+                Ok(true)
+            }
+            // All other states (will use Select function)
             _ => {
                 if event::poll(Duration::from_millis(100))? {
                     if let Event::Key(key) = event::read()? {
@@ -108,6 +119,24 @@ fn select(
                 managers.state_manager.current_state = super::states::StateType::Weather;
             }
             2 => {
+                match managers.save_manager.save(
+                    &managers.world_manager,
+                    &managers.time_manager,
+                    &managers.weather_manager,
+                ) {
+                    Ok(()) => {
+                        managers.state_manager.current_state =
+                            super::states::StateType::GameSaveSuccess;
+                    }
+                    Err(e) => {
+                        eprintln!("Error saving game: {}", e);
+
+                        managers.state_manager.current_state =
+                            super::states::StateType::GameSaveError;
+                    }
+                };
+            }
+            3 => {
                 managers.state_manager.current_state = super::states::StateType::GameQuit;
                 ui_components.menu.selected_index = 0;
             }
@@ -141,6 +170,6 @@ fn start_game(
         ui_components.popup.input.clone(),
     ));
 
-    ui_components.viewport.time_arc_rwlock = Some(managers.time_manager.start());
-    ui_components.viewport.weather_arc_rwlock = Some(managers.weather_manager.start());
+    managers.time_manager.start();
+    managers.weather_manager.start();
 }
