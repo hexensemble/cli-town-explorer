@@ -22,9 +22,11 @@ impl Popup {
     // Updates if the Pop Up should be displayed based on current_state
     pub fn update(&mut self, managers: &super::display::Managers) {
         match managers.state_manager.current_state {
-            // New Game and Quit Game
+            // New Game, Save Game, and Quit Game
             crate::core::states::StateType::Name
             | crate::core::states::StateType::NameConfirm
+            | crate::core::states::StateType::GameSaveSuccess
+            | crate::core::states::StateType::GameSaveError
             | crate::core::states::StateType::GameQuit => self.display = true,
 
             // All other states
@@ -64,6 +66,24 @@ impl Popup {
                     Line::from("Confirm name..."),
                     Line::from(name.yellow()),
                 ];
+
+                (title, text)
+            }
+            // Save Game (Success)
+            crate::core::states::StateType::GameSaveSuccess => {
+                self.title = "Game Saved".into();
+                let title = self.title.clone();
+
+                let text = vec![Line::from("\n"), Line::from("Game saved successfully.")];
+
+                (title, text)
+            }
+            // Save Game (Error)
+            crate::core::states::StateType::GameSaveError => {
+                self.title = "Error!".into();
+                let title = self.title.clone();
+
+                let text = vec![Line::from("\n"), Line::from("Error saving game!".red())];
 
                 (title, text)
             }
