@@ -1,6 +1,7 @@
 use serde::Serialize;
 use serde_json;
 use std::fs;
+use std::path::PathBuf;
 
 // Struct for Save Game Manager
 pub struct SaveGameManager {
@@ -23,50 +24,46 @@ impl SaveGameManager {
         time_manager: &crate::world::time::TimeManger,
         weather_manager: &crate::world::weather::WeatherManager,
     ) -> Result<(), std::io::Error> {
-        match &world_manager.player {
-            Some(player) => {
-                self.save_data.player = Some(player.clone());
-            }
-            None => {
-                eprint!("Player not initialized")
-            }
+        // Save player
+        if let Some(player) = &world_manager.player {
+            self.save_data.player = Some(player.clone());
+        } else {
+            eprint!("Player not initialized")
         }
 
-        match &time_manager.time_arc_rwlock {
-            Some(game_time) => {
-                let game_time_unwrapped = game_time.read().unwrap();
+        // Save time
+        self.save_data.time = time_manager
+            .time_arc_rwlock
+            .as_ref()
+            .and_then(|game_time| game_time.read().ok().map(|t| t.clone()));
 
-                self.save_data.time = Some(crate::world::time::GameTime {
-                    tick: game_time_unwrapped.tick,
-                    day: game_time_unwrapped.day,
-                    phase: game_time_unwrapped.phase.clone(),
-                });
-            }
-            None => {
-                eprintln!("GameTime not initialized");
-            }
+        if self.save_data.time.is_none() {
+            eprintln!("GameTime not initialized");
         }
 
-        match &weather_manager.weather_arc_rwlock {
-            Some(game_weather) => {
-                let game_weather_unwrapped = game_weather.read().unwrap();
+        // Save weather
+        self.save_data.weather = weather_manager
+            .weather_arc_rwlock
+            .as_ref()
+            .and_then(|game_weather| game_weather.read().ok().map(|w| w.clone()));
 
-                self.save_data.weather = Some(game_weather_unwrapped.clone());
-            }
-            None => {
-                eprint!("GameWeather not initialized");
-            }
+        if self.save_data.weather.is_none() {
+            eprint!("GameWeather not initialized");
         }
 
         // Serialize JSON
         let json = serde_json::to_string_pretty(&self.save_data)?;
 
-        // Save JSON to file
-        let output_dir = "saves";
-        let filename = "save.json";
-        let filepath = format!("{}/{}", output_dir, filename);
-        fs::create_dir_all(output_dir)?;
-        fs::write(filepath, json)?;
+        // Path to save JSON file
+        let save_path = PathBuf::from("saves").join("save.json");
+
+        // Check directory exists and create if it doesn't
+        if let Some(parent) = save_path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+
+        // Write to file
+        fs::write(&save_path, json)?;
 
         Ok(())
     }
