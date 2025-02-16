@@ -19,30 +19,43 @@ impl Popup {
         }
     }
 
-    // Updates if the Pop Up should be displayed based on current_state
+    // Updates the Pop Up based on current_state
     pub fn update(&mut self, managers: &super::display::Managers) {
         match managers.state_manager.current_state {
-            // New Game, Save Game, and Quit Game
-            crate::core::states::StateType::Name
-            | crate::core::states::StateType::NameConfirm
-            | crate::core::states::StateType::GameSaveSuccess
-            | crate::core::states::StateType::GameSaveError
-            | crate::core::states::StateType::GameQuit => self.display = true,
-
+            // New Game
+            crate::core::states::StateType::Name | crate::core::states::StateType::NameConfirm => {
+                self.display = true;
+                self.title = "New Game".into();
+            }
+            // Save Game (Success)
+            crate::core::states::StateType::GameSaveSuccess => {
+                self.display = true;
+                self.title = "Game Saved".into();
+            }
+            // Save Game (Error)
+            crate::core::states::StateType::GameSaveError => {
+                self.display = true;
+                self.title = "Error!".into();
+            }
+            // Quit Game
+            crate::core::states::StateType::GameQuit => {
+                self.display = true;
+                self.title = "Quit Game".into();
+            }
             // All other states
             _ => {
                 self.display = false;
+                self.title = String::new();
             }
         }
     }
 
     // Renders the Pop Up based on current state
-    pub fn render(&mut self, managers: &super::display::Managers) -> (String, Vec<Line>) {
+    pub fn render(&self, managers: &super::display::Managers) -> (String, Vec<Line>) {
         match managers.state_manager.current_state {
             // New Game (Enter Name)
             crate::core::states::StateType::Name => {
-                self.title = "New Game".into();
-                let title = self.title.clone();
+                let title = &self.title;
 
                 let prompt = format!("> {}_", self.input);
 
@@ -52,12 +65,11 @@ impl Popup {
                     Line::from(prompt.yellow()),
                 ];
 
-                (title, text)
+                (title.to_string(), text)
             }
             // New Game (Confirm Name)
             crate::core::states::StateType::NameConfirm => {
-                self.title = "New Game".into();
-                let title = self.title.clone();
+                let title = &self.title;
 
                 let name = self.input.to_string();
 
@@ -67,46 +79,42 @@ impl Popup {
                     Line::from(name.yellow()),
                 ];
 
-                (title, text)
+                (title.to_string(), text)
             }
             // Save Game (Success)
             crate::core::states::StateType::GameSaveSuccess => {
-                self.title = "Game Saved".into();
-                let title = self.title.clone();
+                let title = &self.title;
 
                 let text = vec![Line::from("\n"), Line::from("Game saved successfully.")];
 
-                (title, text)
+                (title.to_string(), text)
             }
             // Save Game (Error)
             crate::core::states::StateType::GameSaveError => {
-                self.title = "Error!".into();
-                let title = self.title.clone();
+                let title = &self.title;
 
                 let text = vec![Line::from("\n"), Line::from("Error saving game!".red())];
 
-                (title, text)
+                (title.to_string(), text)
             }
             // Quit Game
             crate::core::states::StateType::GameQuit => {
-                self.title = "Quit Game".into();
-                let title = self.title.clone();
+                let title = &self.title;
 
                 let text = vec![
                     Line::from("\n"),
                     Line::from("Are you sure you want to quit?"),
                 ];
 
-                (title, text)
+                (title.to_string(), text)
             }
             // All other states
             _ => {
-                self.title = String::new();
-                let title = self.title.clone();
+                let title = &self.title;
 
                 let text = vec![Line::from("")];
 
-                (title, text)
+                (title.to_string(), text)
             }
         }
     }

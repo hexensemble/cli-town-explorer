@@ -1,5 +1,6 @@
 use rand::Rng;
 use serde::Serialize;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::Duration;
@@ -9,6 +10,7 @@ use strum_macros::{EnumCount, EnumIter};
 // Struct for Weather Manager
 pub struct WeatherManager {
     pub weather_arc_rwlock: Option<Arc<RwLock<GameWeather>>>,
+    shutdown_flag: Arc<AtomicBool>,
 }
 
 // Fucntions for Weather Manager
@@ -17,6 +19,7 @@ impl WeatherManager {
     pub fn new() -> Self {
         Self {
             weather_arc_rwlock: None,
+            shutdown_flag: Arc::new(AtomicBool::new(false)),
         }
     }
 
@@ -25,7 +28,15 @@ impl WeatherManager {
         let game_weather = Arc::new(RwLock::new(GameWeather::new()));
         let game_weather_arc_clone = Arc::clone(&game_weather);
 
+        self.shutdown_flag.store(false, Ordering::Relaxed);
+        let shutdown_flag_arc_clone = Arc::clone(&self.shutdown_flag);
+
         thread::spawn(move || loop {
+            // Check if thread needs shutting down
+            if shutdown_flag_arc_clone.load(Ordering::Relaxed) {
+                break;
+            }
+
             // Roll to see if weather changes
             if roll_dice(100) < 5 {
                 let mut weather = game_weather_arc_clone.write().unwrap();
@@ -46,6 +57,11 @@ impl WeatherManager {
         });
 
         self.weather_arc_rwlock = Some(game_weather);
+    }
+
+    // Stop the weather thread
+    pub fn stop(&self) {
+        self.shutdown_flag.store(true, Ordering::Relaxed);
     }
 }
 

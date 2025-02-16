@@ -3,10 +3,10 @@ use std::io;
 use std::time::Duration;
 
 // Struct for Event Handler
-pub struct EventHander {}
+pub struct EventHandler {}
 
 // Functions for Event Handler
-impl EventHander {
+impl EventHandler {
     // Updates how events are handled based on current state
     pub fn update(
         managers: &mut crate::ui::display::Managers,
@@ -72,7 +72,7 @@ impl EventHander {
             }
             // All other states (will use Select function)
             _ => {
-                if event::poll(Duration::from_millis(100))? {
+                if event::poll(Duration::ZERO)? {
                     if let Event::Key(key) = event::read()? {
                         match key.code {
                             KeyCode::Up => ui_components.menu.previous(),
@@ -145,6 +145,9 @@ fn select(
         // Quit Game
         super::states::StateType::GameQuit => match ui_components.menu.selected_index {
             0 => {
+                managers.time_manager.stop();
+                managers.weather_manager.stop();
+
                 managers.state_manager.current_state = crate::core::states::StateType::MainMenu;
                 ui_components.menu.selected_index = 0;
             }

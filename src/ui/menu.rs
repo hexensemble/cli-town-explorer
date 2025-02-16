@@ -40,31 +40,28 @@ impl Menu {
 
     // Updates the menu options based on current state
     pub fn update(&mut self, managers: &super::display::Managers) {
-        match managers.state_manager.current_state {
+        self.menu_options.clear();
+
+        let options: &[&str] = match managers.state_manager.current_state {
             // Main Menu
-            crate::core::states::StateType::MainMenu => {
-                self.menu_options = OPTIONS_MAIN_MENU.iter().map(|&s| s.into()).collect();
-            }
+            crate::core::states::StateType::MainMenu => &OPTIONS_MAIN_MENU,
             // New Game
             crate::core::states::StateType::Name | crate::core::states::StateType::NameConfirm => {
-                self.menu_options = OPTIONS_CONFIRM.iter().map(|&s| s.into()).collect();
+                &OPTIONS_CONFIRM
             }
             // Game, Time, and Weather
             crate::core::states::StateType::Game
             | crate::core::states::StateType::Time
-            | crate::core::states::StateType::Weather => {
-                self.menu_options = OPTIONS_GAME.iter().map(|&s| s.into()).collect();
-            }
+            | crate::core::states::StateType::Weather => &OPTIONS_GAME,
             // Save Game
             crate::core::states::StateType::GameSaveSuccess
-            | crate::core::states::StateType::GameSaveError => {
-                self.menu_options = OPTIONS_CONTINUE.iter().map(|&s| s.into()).collect();
-            }
+            | crate::core::states::StateType::GameSaveError => &OPTIONS_CONTINUE,
             // Quit Game
-            crate::core::states::StateType::GameQuit => {
-                self.menu_options = OPTIONS_GAME_QUIT.iter().map(|&s| s.into()).collect();
-            }
-        }
+            crate::core::states::StateType::GameQuit => &OPTIONS_GAME_QUIT,
+        };
+
+        self.menu_options
+            .extend(options.iter().map(|&option| option.to_string()));
     }
 
     // Renders the Menu based on current state

@@ -8,7 +8,7 @@ use ratatui::{DefaultTerminal, Frame};
 pub struct Managers {
     pub state_manager: crate::core::states::StateManager,
     pub world_manager: crate::world::manager::WorldManager,
-    pub time_manager: crate::world::time::TimeManger,
+    pub time_manager: crate::world::time::TimeManager,
     pub weather_manager: crate::world::weather::WeatherManager,
     pub save_manager: crate::core::save::SaveGameManager,
 }
@@ -38,7 +38,7 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
     let mut managers = Managers {
         state_manager: crate::core::states::StateManager::new(),
         world_manager: crate::world::manager::WorldManager::new(),
-        time_manager: crate::world::time::TimeManger::new(),
+        time_manager: crate::world::time::TimeManager::new(),
         weather_manager: crate::world::weather::WeatherManager::new(),
         save_manager: crate::core::save::SaveGameManager::new(),
     };
@@ -53,6 +53,7 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
     loop {
         // Update
         ui_components.menu.update(&managers);
+        ui_components.viewport.update(&managers);
         ui_components.popup.update(&managers);
 
         // Render
@@ -61,7 +62,7 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
         })?;
 
         // Handle events
-        if !crate::core::events::EventHander::update(&mut managers, &mut ui_components)? {
+        if !crate::core::events::EventHandler::update(&mut managers, &mut ui_components)? {
             break Ok(());
         }
     }
