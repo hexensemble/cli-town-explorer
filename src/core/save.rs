@@ -21,14 +21,14 @@ impl SaveGameManager {
     pub fn save(
         &mut self,
         world_manager: &crate::world::manager::WorldManager,
-        time_manager: &crate::world::time::TimeManger,
+        time_manager: &crate::world::time::TimeManager,
         weather_manager: &crate::world::weather::WeatherManager,
     ) -> Result<(), std::io::Error> {
         // Save player
         if let Some(player) = &world_manager.player {
             self.save_data.player = Some(player.clone());
         } else {
-            eprint!("Player not initialized")
+            eprintln!("Player not initialized")
         }
 
         // Save time
@@ -48,7 +48,7 @@ impl SaveGameManager {
             .and_then(|game_weather| game_weather.read().ok().map(|w| w.clone()));
 
         if self.save_data.weather.is_none() {
-            eprint!("GameWeather not initialized");
+            eprintln!("GameWeather not initialized");
         }
 
         // Serialize JSON

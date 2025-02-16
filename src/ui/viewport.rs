@@ -17,8 +17,52 @@ impl Viewport {
         }
     }
 
+    // Updates any dynamic parts of Viewport
+    pub fn update(&mut self, managers: &super::display::Managers) {
+        match managers.state_manager.current_state {
+            // Game, Time, and Weather
+            crate::core::states::StateType::Game
+            | crate::core::states::StateType::Time
+            | crate::core::states::StateType::Weather => {
+                // Get time
+                if let Some(game_time) = &managers.time_manager.time_arc_rwlock {
+                    if let Ok(game_time_unwrapped) = game_time.read() {
+                        self.time = format!(
+                            "Day: {}, Phase: {:?}, Tick: {}",
+                            game_time_unwrapped.day,
+                            game_time_unwrapped.phase,
+                            game_time_unwrapped.tick
+                        );
+                    } else {
+                        eprintln!("Failed to read GameTime (lock poisoned?)");
+                        self.time = "GameTime not available".into();
+                    }
+                } else {
+                    eprintln!("GameTime not initialized");
+                    self.time = "GameTime not initialized".into();
+                }
+
+                // Get weather
+                if let Some(game_weather) = &managers.weather_manager.weather_arc_rwlock {
+                    if let Ok(game_weather_unwrapped) = game_weather.read() {
+                        self.weather =
+                            format!("The weather is {:?}", game_weather_unwrapped.weather_type);
+                    } else {
+                        eprintln!("Failed to read GameWeather (lock poisoned?)");
+                        self.weather = "GameWeather not availble".into();
+                    }
+                } else {
+                    eprintln!("GameWeather not initialized");
+                    self.weather = "GameWeather not initialized".into()
+                }
+            }
+            // All other states
+            _ => {}
+        }
+    }
+
     // Renders the Viewport based on current state
-    pub fn render(&mut self, managers: &super::display::Managers) -> Vec<Line> {
+    pub fn render(&self, managers: &super::display::Managers) -> Vec<Line> {
         match managers.state_manager.current_state {
             // Main Menu
             crate::core::states::StateType::MainMenu => {
@@ -72,22 +116,6 @@ impl Viewport {
             }
             // Time
             crate::core::states::StateType::Time => {
-                match &managers.time_manager.time_arc_rwlock {
-                    Some(game_time) => {
-                        let game_time_unwrapped = game_time.read().unwrap();
-                        self.time = format!(
-                            "Day: {}, Phase: {:?}, Tick: {}",
-                            game_time_unwrapped.day,
-                            game_time_unwrapped.phase,
-                            game_time_unwrapped.tick
-                        );
-                    }
-                    None => {
-                        eprintln!("GameTime not initialized");
-                        self.time = "GameTime not initialized".into();
-                    }
-                }
-
                 vec![
                     Line::from(self.time.clone()),
                     Line::from("\n"),
@@ -96,18 +124,6 @@ impl Viewport {
             }
             // Weather
             crate::core::states::StateType::Weather => {
-                match &managers.weather_manager.weather_arc_rwlock {
-                    Some(weather) => {
-                        let weather_unwrapped = weather.read().unwrap();
-                        self.weather =
-                            format!("The weather is {:?}", weather_unwrapped.weather_type)
-                    }
-                    None => {
-                        eprintln!("GameWeather not initialized");
-                        self.weather = "GameWeather not initialized".into()
-                    }
-                }
-
                 vec![
                     Line::from(self.weather.clone()),
                     Line::from("\n"),

@@ -1,19 +1,22 @@
 use serde::Serialize;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::{Duration, Instant};
 
 // Struct for Time Manager
-pub struct TimeManger {
+pub struct TimeManager {
     pub time_arc_rwlock: Option<Arc<RwLock<GameTime>>>,
+    shutdown_flag: Arc<AtomicBool>,
 }
 
 // Functions for Time Manager
-impl TimeManger {
+impl TimeManager {
     // Create a new Time Manager
     pub fn new() -> Self {
         Self {
             time_arc_rwlock: None,
+            shutdown_flag: Arc::new(AtomicBool::new(false)),
         }
     }
 
@@ -21,6 +24,9 @@ impl TimeManger {
     pub fn start(&mut self) {
         let game_time = Arc::new(RwLock::new(GameTime::new()));
         let game_time_arc_clone = Arc::clone(&game_time);
+
+        self.shutdown_flag.store(false, Ordering::Relaxed);
+        let shutdown_flag_arc_clone = Arc::clone(&self.shutdown_flag);
 
         thread::spawn(move || {
             // Total real-world time for one in-game day (15 minutes)
@@ -46,6 +52,11 @@ impl TimeManger {
             let mut last_time = Instant::now();
 
             loop {
+                // Check if thread needs shutting down
+                if shutdown_flag_arc_clone.load(Ordering::Relaxed) {
+                    break;
+                }
+
                 // Calculate delta time
                 let now = Instant::now();
                 let delta = now.duration_since(last_time);
@@ -95,6 +106,11 @@ impl TimeManger {
         });
 
         self.time_arc_rwlock = Some(game_time);
+    }
+
+    // Stop the time thread
+    pub fn stop(&self) {
+        self.shutdown_flag.store(true, Ordering::Relaxed);
     }
 }
 
