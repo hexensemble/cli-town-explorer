@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, RwLock};
 use std::thread;
@@ -21,8 +21,8 @@ impl TimeManager {
     }
 
     // Start time, spawns in new thread
-    pub fn start(&mut self) {
-        let game_time = Arc::new(RwLock::new(GameTime::new()));
+    pub fn start(&mut self, initial_game_time: GameTime) {
+        let game_time = Arc::new(RwLock::new(initial_game_time));
         let game_time_arc_clone = Arc::clone(&game_time);
 
         self.shutdown_flag.store(false, Ordering::Relaxed);
@@ -48,6 +48,13 @@ impl TimeManager {
             let mut current_tick = 0;
             let mut current_day = 1;
             let mut current_phase = Phase::Dawn;
+
+            if let Ok(game_time_unwrapped) = game_time_arc_clone.read() {
+                current_tick = game_time_unwrapped.tick;
+                current_day = game_time_unwrapped.day;
+                current_phase = game_time_unwrapped.phase.clone();
+            }
+
             let mut accumulated_time = Duration::ZERO;
             let mut last_time = Instant::now();
 
@@ -115,7 +122,7 @@ impl TimeManager {
 }
 
 // Struct for Game Time
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GameTime {
     pub tick: u32,
     pub day: u32,
@@ -125,7 +132,7 @@ pub struct GameTime {
 // Functions for Game Time
 impl GameTime {
     // Create a new Game Time, starts at dawn on the first day
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             tick: 0,
             day: 1,
@@ -135,7 +142,7 @@ impl GameTime {
 }
 
 // Enum for day/night phases
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Phase {
     Dawn,
     Day,

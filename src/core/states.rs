@@ -7,6 +7,7 @@ pub enum StateType {
     Game,
     GameSaveSuccess,
     GameSaveError,
+    GameLoadError,
     GameQuit,
     Time,
     Weather,

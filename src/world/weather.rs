@@ -1,5 +1,5 @@
 use rand::Rng;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, RwLock};
 use std::thread;
@@ -24,8 +24,8 @@ impl WeatherManager {
     }
 
     // Start weather, spawns in a new thread
-    pub fn start(&mut self) {
-        let game_weather = Arc::new(RwLock::new(GameWeather::new()));
+    pub fn start(&mut self, initial_game_weather: GameWeather) {
+        let game_weather = Arc::new(RwLock::new(initial_game_weather));
         let game_weather_arc_clone = Arc::clone(&game_weather);
 
         self.shutdown_flag.store(false, Ordering::Relaxed);
@@ -72,7 +72,7 @@ fn roll_dice(dice_size: u32) -> u32 {
 }
 
 // Struct for Game Weather
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GameWeather {
     pub weather_type: WeatherType,
 }
@@ -80,7 +80,7 @@ pub struct GameWeather {
 // Functions for Game Weather
 impl GameWeather {
     // Create a new Game Weather, defaults to Sunny
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             weather_type: WeatherType::Sunny,
         }
@@ -88,7 +88,7 @@ impl GameWeather {
 }
 
 // Enum for weather types
-#[derive(Debug, Clone, EnumCount, EnumIter, Serialize)]
+#[derive(Debug, Clone, EnumCount, EnumIter, Serialize, Deserialize)]
 pub enum WeatherType {
     Sunny,
     Raining,
