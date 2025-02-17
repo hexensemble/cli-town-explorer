@@ -7,13 +7,14 @@ This project serves as a fun interactive way to demo my Rust skills.
 
 ✅ **Implemented:** 
 
-- 🌍 Procedural World Generation (Pre-generated using my [Town Generator](https://github.com/hexensemble/town-generator) 🏰)
 - 🖥️ Ratatui UI Implementation (Terminal-based UI for gameplay interactions)
+- 🌍 Procedural World Generation (Pre-generated using my [Town Generator](https://github.com/hexensemble/town-generator) 🏰)
 - 🌙 Day/Night and Weather System (Threaded time/weather simulation)
+- 💾 Save/Load System (Persistent game states)
   
 🔧 **Building:**
 
-- 💾 Save/Load System (Persistent game states)
+- 🗺️ Display World Map (graph based world render) 
 
 📌 **Planned:**
 
