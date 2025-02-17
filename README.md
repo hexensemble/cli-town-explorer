@@ -14,7 +14,7 @@ This project serves as a fun interactive way to demo my Rust skills.
   
 🔧 **Building:**
 
-- 🗺️ Display World Map (graph based world render) 
+- 🗺️ Display World Map (Graph based world render) 
 
 📌 **Planned:**
 
