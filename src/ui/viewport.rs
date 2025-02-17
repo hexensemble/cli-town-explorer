@@ -110,6 +110,10 @@ impl Viewport {
             crate::core::states::StateType::GameSaveError => {
                 vec![Line::from("Error saving game!")]
             }
+            // Load Game (Error)
+            crate::core::states::StateType::GameLoadError => {
+                vec![Line::from("Error loading game!")]
+            }
             // Quit Game
             crate::core::states::StateType::GameQuit => {
                 vec![Line::from("Are you sure you want to quit?")]

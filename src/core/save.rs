@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json;
 use std::fs;
 use std::path::PathBuf;
@@ -67,14 +67,25 @@ impl SaveGameManager {
 
         Ok(())
     }
+
+    // Loads saved data from JSON
+    pub fn load(&self) -> Result<SaveData, Box<dyn std::error::Error>> {
+        let load_path = PathBuf::from("saves").join("save.json");
+
+        let json_data = fs::read_to_string(load_path)?;
+
+        let save_data: SaveData = serde_json::from_str(&json_data)?;
+
+        Ok(save_data)
+    }
 }
 
 // Struct for Save Data
-#[derive(Serialize)]
-struct SaveData {
-    player: Option<crate::entities::player::Player>,
-    time: Option<crate::world::time::GameTime>,
-    weather: Option<crate::world::weather::GameWeather>,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SaveData {
+    pub player: Option<crate::entities::player::Player>,
+    pub time: Option<crate::world::time::GameTime>,
+    pub weather: Option<crate::world::weather::GameWeather>,
 }
 
 // Functions for Save Data

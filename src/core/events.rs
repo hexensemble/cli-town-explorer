@@ -70,7 +70,17 @@ impl EventHandler {
 
                 Ok(true)
             }
-            // All other states (will use Select function)
+            // Load Game (Error)
+            super::states::StateType::GameLoadError => {
+                if let Event::Key(key) = event::read()? {
+                    if key.code == KeyCode::Enter {
+                        managers.state_manager.current_state = super::states::StateType::MainMenu;
+                    }
+                }
+
+                Ok(true)
+            }
+            // All other states (these use the Select function)
             _ => {
                 if event::poll(Duration::ZERO)? {
                     if let Event::Key(key) = event::read()? {
@@ -105,7 +115,19 @@ fn select(
                 managers.state_manager.current_state = crate::core::states::StateType::Name;
                 ui_components.menu.selected_index = 0;
             }
-            1 => return Ok(false),
+            1 => match load_game(managers) {
+                Ok(()) => {
+                    managers.state_manager.current_state = crate::core::states::StateType::Game;
+                    ui_components.menu.selected_index = 0;
+                }
+                Err(e) => {
+                    eprintln!("Unable to load save: {}", e);
+                    managers.state_manager.current_state =
+                        crate::core::states::StateType::GameLoadError;
+                    ui_components.menu.selected_index = 0;
+                }
+            },
+            2 => return Ok(false),
             _ => {}
         },
         // Game, Time, and Weather
@@ -173,6 +195,37 @@ fn start_game(
         ui_components.popup.input.clone(),
     ));
 
-    managers.time_manager.start();
-    managers.weather_manager.start();
+    managers
+        .time_manager
+        .start(crate::world::time::GameTime::new());
+    managers
+        .weather_manager
+        .start(crate::world::weather::GameWeather::new());
+}
+
+// Load game from save
+fn load_game(
+    managers: &mut crate::ui::display::Managers,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let save_data = managers.save_manager.load()?;
+
+    if let Some(player) = save_data.player {
+        managers.world_manager.player = Some(player);
+    } else {
+        eprintln!("No player!");
+    }
+
+    if let Some(initial_game_time) = save_data.time {
+        managers.time_manager.start(initial_game_time);
+    } else {
+        eprintln!("No GameTime!");
+    }
+
+    if let Some(initial_game_weather) = save_data.weather {
+        managers.weather_manager.start(initial_game_weather);
+    } else {
+        eprint!("No GameWeather!");
+    }
+
+    Ok(())
 }
