@@ -30,17 +30,14 @@ impl Popup {
             // Save Game (Success)
             crate::core::states::StateType::GameSaveSuccess => {
                 self.display = true;
-                self.title = "Game Saved".into();
+                self.title = "Success!".into();
             }
-            // Save Game (Error)
-            crate::core::states::StateType::GameSaveError => {
+            // Save Game (Error), Load Game (Error), and Initialize Game (Error)
+            crate::core::states::StateType::GameSaveError
+            | crate::core::states::StateType::GameLoadError
+            | crate::core::states::StateType::GameInitError => {
                 self.display = true;
-                self.title = "Save Error!".into();
-            }
-            // Load Game (Error)
-            crate::core::states::StateType::GameLoadError => {
-                self.display = true;
-                self.title = "Load Error!".into();
+                self.title = "Error!".into();
             }
             // Quit Game
             crate::core::states::StateType::GameQuit => {
@@ -109,7 +106,19 @@ impl Popup {
                 let text = vec![Line::from("\n"), Line::from("Error loading game!".red())];
 
                 (title.to_string(), text)
-            } // Quit Game
+            }
+            // Initialize Game (Error)
+            crate::core::states::StateType::GameInitError => {
+                let title = &self.title;
+
+                let text = vec![
+                    Line::from("\n"),
+                    Line::from("Error initializing game!".red()),
+                ];
+
+                (title.to_string(), text)
+            }
+            // Quit Game
             crate::core::states::StateType::GameQuit => {
                 let title = &self.title;
 

@@ -88,11 +88,19 @@ impl Viewport {
             }
             // Game
             crate::core::states::StateType::Game => {
+                let town_name = if let Some(player) = managers.world_manager.player.as_ref() {
+                    format!("You are currently in the town of {}", player.town_name)
+                } else {
+                    "Error getting town info!".into()
+                };
+
                 vec![Line::from("The game begins..."), 
                     Line::from("\n"), 
                     Line::from("As you’ve already seen, we have a terminal-based UI running with the help of Ratatui."),
                     Line::from("There are three \"sections\" which all update based on the game's current state."),
-                    Line::from("\n"), 
+                    Line::from("\n"),
+                    Line::from(town_name),
+                    Line::from("\n"),
                     Line::from("Select an option from the menu below...")
                 ]
             }
@@ -108,11 +116,24 @@ impl Viewport {
             }
             // Save Game (Error)
             crate::core::states::StateType::GameSaveError => {
-                vec![Line::from("Error saving game!")]
+                vec![Line::from(vec![Span::styled(
+                    "Error saving game!",
+                    Style::new().red(),
+                )])]
             }
             // Load Game (Error)
             crate::core::states::StateType::GameLoadError => {
-                vec![Line::from("Error loading game!")]
+                vec![Line::from(vec![Span::styled(
+                    "Error loading game!",
+                    Style::new().red(),
+                )])]
+            }
+            // Initialize Game (Error)
+            crate::core::states::StateType::GameInitError => {
+                vec![Line::from(vec![Span::styled(
+                    "Error initializing game!",
+                    Style::new().red(),
+                )])]
             }
             // Quit Game
             crate::core::states::StateType::GameQuit => {
@@ -133,6 +154,10 @@ impl Viewport {
                     Line::from("\n"),
                     Line::from("Weather runs in its own thread and updates continuously."),
                 ]
+            }
+            // Travel
+            crate::core::states::StateType::Travel => {
+                vec![Line::from("Where would you like to go?")]
             }
         }
     }
