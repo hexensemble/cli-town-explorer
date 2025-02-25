@@ -8,9 +8,11 @@ pub enum StateType {
     GameSaveSuccess,
     GameSaveError,
     GameLoadError,
+    GameInitError,
     GameQuit,
     Time,
     Weather,
+    Travel,
 }
 
 // Struct for State Manager

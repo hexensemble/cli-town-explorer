@@ -1,0 +1,25 @@
+graph Towns {
+    "Higashi Yamamura" -- "Higashi Kawaport" [label="22 m / 110 gold", len=2];
+    "Higashi Yamamura" -- "Stoke Tunchō" [label="32 m / 160 gold", len=3];
+    "Higashi Yamamura" -- "Nishi Kawagate" [label="35 m / 175 gold", len=3];
+    "Higashi Yamamura" -- "Ko Dunwich" [label="34 m / 170 gold", len=3];
+    "Higashi Yamamura" -- "Middle Tashi" [label="30 m / 150 gold", len=3];
+    "Higashi Yamamura" -- "Minami Machiken" [label="40 m / 200 gold", len=4];
+    "Higashi Yamamura" -- "Nishi Yamacester" [label="35 m / 175 gold", len=3];
+    "Stoke Tunchō" -- "Nishi Kawagate" [label="24 m / 120 gold", len=2];
+    "Nishi Kawagate" -- "Ko Dunwich" [label="30 m / 150 gold", len=3];
+    "Ko Dunwich" -- "Kita Worthgate" [label="32 m / 160 gold", len=3];
+    "Kita Worthgate" -- "Middle Tashi" [label="27 m / 135 gold", len=2];
+    "Middle Tashi" -- "Kita Shimashi" [label="40 m / 200 gold", len=4];
+    "Kami Byford" -- "Minami Machiken" [label="22 m / 110 gold", len=2];
+    "Minami Machiken" -- "South Steadburgh" [label="25 m / 125 gold", len=2];
+    "South Steadburgh" -- "Nishi Yamacester" [label="24 m / 120 gold", len=2];
+    "Ash Burhwich" -- "Kami Byford" [label="47 m / 235 gold", len=4];
+    "Ash Burhwich" -- "Har Leahhampton" [label="10 m / 50 gold", len=1];
+    "Ash Burhwich" -- "Middle Tashi" [label="40 m / 200 gold", len=4];
+    "Har Leahhampton" -- "Higashi Burhdō" [label="22 m / 110 gold", len=2];
+    "Har Leahhampton" -- "Kita Shimashi" [label="35 m / 175 gold", len=3];
+    "Kita Shimashi" -- "Kita Worthgate" [label="22 m / 110 gold", len=2];
+    "Ko Dunwich" -- "Middle Tashi" [label="31 m / 155 gold", len=3];
+    "Minami Machiken" -- "Middle Tashi" [label="42 m / 210 gold", len=4];
+}

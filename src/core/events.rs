@@ -43,11 +43,22 @@ impl EventHandler {
                     match key.code {
                         KeyCode::Enter => {
                             // Start the game
-                            start_game(managers, ui_components);
+                            match start_game(managers, ui_components) {
+                                Ok(()) => {
+                                    ui_components.popup.input.clear();
 
-                            ui_components.popup.input.clear();
+                                    managers.state_manager.current_state =
+                                        super::states::StateType::Game;
+                                }
+                                Err(e) => {
+                                    eprintln!("Error loading game assets: {}", e);
 
-                            managers.state_manager.current_state = super::states::StateType::Game;
+                                    ui_components.popup.input.clear();
+
+                                    managers.state_manager.current_state =
+                                        super::states::StateType::GameInitError;
+                                }
+                            }
                         }
                         KeyCode::Esc => {
                             ui_components.popup.input.clear();
@@ -70,8 +81,8 @@ impl EventHandler {
 
                 Ok(true)
             }
-            // Load Game (Error)
-            super::states::StateType::GameLoadError => {
+            // Load Game (Error) and Initialize Game (Error)
+            super::states::StateType::GameLoadError | super::states::StateType::GameInitError => {
                 if let Event::Key(key) = event::read()? {
                     if key.code == KeyCode::Enter {
                         managers.state_manager.current_state = super::states::StateType::MainMenu;
@@ -141,6 +152,9 @@ fn select(
                 managers.state_manager.current_state = super::states::StateType::Weather;
             }
             2 => {
+                managers.state_manager.current_state = super::states::StateType::Travel;
+            }
+            3 => {
                 match managers.save_manager.save(
                     &managers.world_manager,
                     &managers.time_manager,
@@ -158,11 +172,32 @@ fn select(
                     }
                 };
             }
-            3 => {
+            4 => {
                 managers.state_manager.current_state = super::states::StateType::GameQuit;
                 ui_components.menu.selected_index = 0;
             }
             _ => {}
+        },
+        // Travel
+        super::states::StateType::Travel => match ui_components
+            .menu
+            .menu_options
+            .get(ui_components.menu.selected_index)
+        {
+            Some(selected_option) => {
+                if selected_option == "Back" {
+                    managers.state_manager.current_state = super::states::StateType::Game;
+                    ui_components.menu.selected_index = 0;
+                } else if let Some(player) = &mut managers.world_manager.player {
+                    player.town_name = selected_option.to_string();
+
+                    managers.state_manager.current_state = super::states::StateType::Game;
+                    ui_components.menu.selected_index = 0;
+                }
+            }
+            None => {
+                eprintln!("Invalid menu selection");
+            }
         },
         // Quit Game
         super::states::StateType::GameQuit => match ui_components.menu.selected_index {
@@ -189,10 +224,13 @@ fn select(
 fn start_game(
     managers: &mut crate::ui::display::Managers,
     ui_components: &mut crate::ui::display::UIComponents,
-) {
+) -> Result<(), Box<dyn std::error::Error>> {
+    managers.world_manager.load_world()?;
+
     managers.world_manager.player = Some(crate::entities::player::Player::new(
         666,
         ui_components.popup.input.clone(),
+        "Higashi Kawaport".into(),
     ));
 
     managers
@@ -201,12 +239,16 @@ fn start_game(
     managers
         .weather_manager
         .start(crate::world::weather::GameWeather::new());
+
+    Ok(())
 }
 
 // Load game from save
 fn load_game(
     managers: &mut crate::ui::display::Managers,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    managers.world_manager.load_world()?;
+
     let save_data = managers.save_manager.load()?;
 
     if let Some(player) = save_data.player {
