@@ -13,10 +13,11 @@ This project serves as a fun interactive way to demo my Rust skills.
 - 🌙 Day/Night and Weather System (Threaded time/weather simulation)
 - 💾 Save/Load System
 - 🎠 Travel System
+- 📝 Logging
   
 🔧 **Building:**
 
-- 📝 Logging
+- 🏰 Town Exploration
 
 📌 **Planned:**
 
