@@ -34,12 +34,12 @@ impl Viewport {
                             game_time_unwrapped.tick
                         );
                     } else {
-                        eprintln!("Failed to read GameTime (lock poisoned?)");
-                        self.time = "GameTime not available".into();
+                        log::error!("Failed to read GameTime (lock poisoned?).");
+                        self.time = "GameTime unavailable".into();
                     }
                 } else {
-                    eprintln!("GameTime not initialized");
-                    self.time = "GameTime not initialized".into();
+                    log::error!("Failed to initialize GameTime.");
+                    self.time = "GameTime unavailable".into();
                 }
 
                 // Get weather
@@ -48,12 +48,12 @@ impl Viewport {
                         self.weather =
                             format!("The weather is {:?}", game_weather_unwrapped.weather_type);
                     } else {
-                        eprintln!("Failed to read GameWeather (lock poisoned?)");
-                        self.weather = "GameWeather not availble".into();
+                        log::error!("Failed to read GameWeather (lock poisoned?).");
+                        self.weather = "GameWeather unavailable".into();
                     }
                 } else {
-                    eprintln!("GameWeather not initialized");
-                    self.weather = "GameWeather not initialized".into()
+                    log::error!("Failed to initialize GameWeather.");
+                    self.weather = "GameWeather unavailable".into()
                 }
             }
             // All other states

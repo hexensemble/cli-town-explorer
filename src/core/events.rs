@@ -51,7 +51,7 @@ impl EventHandler {
                                         super::states::StateType::Game;
                                 }
                                 Err(e) => {
-                                    eprintln!("Error loading game assets: {}", e);
+                                    log::error!("Failed to load game assets: {}", e);
 
                                     ui_components.popup.input.clear();
 
@@ -132,7 +132,8 @@ fn select(
                     ui_components.menu.selected_index = 0;
                 }
                 Err(e) => {
-                    eprintln!("Unable to load save: {}", e);
+                    log::error!("Failed to load save: {}", e);
+
                     managers.state_manager.current_state =
                         crate::core::states::StateType::GameLoadError;
                     ui_components.menu.selected_index = 0;
@@ -165,7 +166,7 @@ fn select(
                             super::states::StateType::GameSaveSuccess;
                     }
                     Err(e) => {
-                        eprintln!("Error saving game: {}", e);
+                        log::error!("Failed to save game: {}", e);
 
                         managers.state_manager.current_state =
                             super::states::StateType::GameSaveError;
@@ -230,7 +231,10 @@ fn select(
                 }
             }
             None => {
-                eprintln!("Invalid menu selection");
+                log::error!(
+                    "Failed to find town at selected index: {}",
+                    ui_components.menu.selected_index
+                );
             }
         },
         // Quit Game
@@ -259,6 +263,8 @@ fn start_game(
     managers: &mut crate::ui::display::Managers,
     ui_components: &mut crate::ui::display::UIComponents,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    managers.world_manager.clear();
+
     managers.world_manager.load_world()?;
 
     managers.world_manager.player = Some(crate::entities::player::Player::new(
@@ -281,6 +287,8 @@ fn start_game(
 fn load_game(
     managers: &mut crate::ui::display::Managers,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    managers.world_manager.clear();
+
     managers.world_manager.load_world()?;
 
     let save_data = managers.save_manager.load()?;
@@ -288,19 +296,19 @@ fn load_game(
     if let Some(player) = save_data.player {
         managers.world_manager.player = Some(player);
     } else {
-        eprintln!("No player!");
+        log::error!("Failed to load Player: No Player found.");
     }
 
     if let Some(initial_game_time) = save_data.time {
         managers.time_manager.start(initial_game_time);
     } else {
-        eprintln!("No GameTime!");
+        log::error!("Failed to load GameTime: No GameTime found.");
     }
 
     if let Some(initial_game_weather) = save_data.weather {
         managers.weather_manager.start(initial_game_weather);
     } else {
-        eprint!("No GameWeather!");
+        log::error!("Failed to load GameWeather: No GameWeather found.");
     }
 
     Ok(())

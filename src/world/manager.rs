@@ -26,6 +26,14 @@ impl WorldManager {
         }
     }
 
+    // Clear all data from the World Manager
+    pub fn clear(&mut self) {
+        self.player = None;
+        self.world = None;
+        self.world_graph = None;
+        self.node_indices = HashMap::new();
+    }
+
     // Load in world JSON and DOT files
     pub fn load_world(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         let world_path = PathBuf::from("assets").join("world.json");
@@ -56,7 +64,7 @@ impl WorldManager {
                     }
                 }
             }
-            None => return Err("Error creating world graph!".into()),
+            None => return Err("Failed to create world graph.".into()),
         }
 
         Ok(())
@@ -117,7 +125,6 @@ fn parse_edge_line(line: &str) -> Option<(String, String, String)> {
 }
 
 // Struct for storing distance and cost between towns
-#[derive(Debug, Clone)]
 struct JourneyInfo {
     distance: u32,
     cost: u32,
