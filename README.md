@@ -8,18 +8,20 @@ This project serves as a fun interactive way to demo my Rust skills.
 ✅ **Implemented:** 
 
 - 🖥️ Ratatui UI Implementation (Terminal-based UI for gameplay interactions)
+- 🎭 Character Creation
 - 🌍 Procedural World Generation (Pre-generated using my [Town Generator](https://github.com/hexensemble/town-generator) 🏰)
 - 🌙 Day/Night and Weather System (Threaded time/weather simulation)
-- 💾 Save/Load System (Persistent game states)
+- 💾 Save/Load System
+- 🎠 Travel System
   
 🔧 **Building:**
 
-- 🎠 Travel System
+- 📝 Logging
 
 📌 **Planned:**
 
 - 🗣️ AI LLM Integration for NPC Dialogue (TinyLlama with Candle)
-- 🎭 Character Creation, Skills, Stats, and Inventory
+- 🎭 Skills
 - ⚔️ Combat System (Turn-based)
-- 📜 Basic Quest System (Simple generated quests)
+- 📜 Basic Quest System
 - 🛠️ General Refinements (Bug fixes, optimizations, etc.)
