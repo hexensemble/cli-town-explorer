@@ -28,7 +28,7 @@ impl SaveGameManager {
         if let Some(player) = &world_manager.player {
             self.save_data.player = Some(player.clone());
         } else {
-            eprintln!("Player not initialized")
+            log::error!("Failed to save Player: No Player found.")
         }
 
         // Save time
@@ -38,7 +38,7 @@ impl SaveGameManager {
             .and_then(|game_time| game_time.read().ok().map(|t| t.clone()));
 
         if self.save_data.time.is_none() {
-            eprintln!("GameTime not initialized");
+            log::error!("Failed to save GameTime: No GameTime found.")
         }
 
         // Save weather
@@ -48,7 +48,7 @@ impl SaveGameManager {
             .and_then(|game_weather| game_weather.read().ok().map(|w| w.clone()));
 
         if self.save_data.weather.is_none() {
-            eprintln!("GameWeather not initialized");
+            log::error!("Failed to save GameWeather: No GameWeather found.")
         }
 
         // Serialize JSON

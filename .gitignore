@@ -28,5 +28,8 @@ target/
 ehthumbs.db
 Thumbs.db
 
+# Log file
+output.log
+
 # Saves folder
 saves/
