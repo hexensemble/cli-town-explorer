@@ -188,8 +188,42 @@ fn select(
                 if selected_option == "Back" {
                     managers.state_manager.current_state = super::states::StateType::Game;
                     ui_components.menu.selected_index = 0;
-                } else if let Some(player) = &mut managers.world_manager.player {
+                } else if let Some(player) = managers.world_manager.player.as_mut() {
+                    // Save current town
+                    let current_town = player.town_name.clone();
+
+                    // Change town to new town
                     player.town_name = selected_option.to_string();
+
+                    // Stop time
+                    managers.time_manager.stop();
+
+                    // Save time
+                    let mut time = managers
+                        .time_manager
+                        .time_arc_rwlock
+                        .as_ref()
+                        .and_then(|game_time| game_time.read().ok().map(|t| t.clone()));
+
+                    // Advance and restart time
+                    match time.as_mut() {
+                        Some(time_unwrapped) => {
+                            let travel_time = managers
+                                .world_manager
+                                .get_travel_time(&current_town, selected_option);
+
+                            time_unwrapped.tick += travel_time;
+                            time_unwrapped.day += time_unwrapped.tick / 900;
+                            time_unwrapped.tick %= 900;
+
+                            managers.time_manager.start(time_unwrapped.clone());
+                        }
+                        None => {
+                            managers
+                                .time_manager
+                                .start(crate::world::time::GameTime::new());
+                        }
+                    }
 
                     managers.state_manager.current_state = super::states::StateType::Game;
                     ui_components.menu.selected_index = 0;

@@ -1,3 +1,6 @@
+use petgraph::algo::dijkstra;
+use petgraph::graph::NodeIndex;
+use petgraph::{Graph, Undirected};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -7,6 +10,8 @@ use std::path::PathBuf;
 pub struct WorldManager {
     pub player: Option<crate::entities::player::Player>,
     pub world: Option<World>,
+    world_graph: Option<Graph<String, JourneyInfo, Undirected>>,
+    node_indices: HashMap<String, NodeIndex>,
 }
 
 // Functions for World Manager
@@ -16,18 +21,119 @@ impl WorldManager {
         Self {
             player: None,
             world: None,
+            world_graph: None,
+            node_indices: HashMap::new(),
         }
     }
 
+    // Load in world JSON and DOT files
     pub fn load_world(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        let file_path = PathBuf::from("assets").join("world.json");
-        let data = fs::read_to_string(file_path)?;
-
-        let world: World = serde_json::from_str(&data)?;
-
+        let world_path = PathBuf::from("assets").join("world.json");
+        let world_data = fs::read_to_string(world_path)?;
+        let world: World = serde_json::from_str(&world_data)?;
         self.world = Some(world);
 
+        let world_graph_path = PathBuf::from("assets").join("world.dot");
+        let world_graph_data = fs::read_to_string(world_graph_path)?;
+        self.world_graph = Some(Graph::new_undirected());
+
+        match self.world_graph.as_mut() {
+            Some(world_graph) => {
+                for line in world_graph_data.lines() {
+                    if let Some((source, target, label)) = parse_edge_line(line) {
+                        let src_index = *self
+                            .node_indices
+                            .entry(source.clone())
+                            .or_insert_with(|| world_graph.add_node(source.clone()));
+                        let tgt_index = *self
+                            .node_indices
+                            .entry(target.clone())
+                            .or_insert_with(|| world_graph.add_node(target.clone()));
+
+                        if let Some(journey_info) = JourneyInfo::from_label(&label) {
+                            world_graph.add_edge(src_index, tgt_index, journey_info);
+                        }
+                    }
+                }
+            }
+            None => return Err("Error creating world graph!".into()),
+        }
+
         Ok(())
+    }
+
+    pub fn get_travel_time(&self, origin: &String, destination: &String) -> u32 {
+        if let (Some(&origin_unwrapped), Some(&destination_unwrapped)) = (
+            self.node_indices.get(origin),
+            self.node_indices.get(destination),
+        ) {
+            if let Some(graph) = self.world_graph.as_ref() {
+                let path = dijkstra(graph, origin_unwrapped, Some(destination_unwrapped), |e| {
+                    e.weight().distance
+                });
+
+                if let Some(cost) = path.get(&destination_unwrapped) {
+                    cost * 10 // 1 mile = 10 ticks
+                } else {
+                    0
+                }
+            } else {
+                0
+            }
+        } else {
+            0
+        }
+    }
+}
+
+// Parses an edge line from the DOT file and extracts (town1, town2, label).
+fn parse_edge_line(line: &str) -> Option<(String, String, String)> {
+    let line = line.trim();
+
+    if line.starts_with('"') && line.contains("--") && line.contains("[label=") {
+        let parts: Vec<&str> = line.split("--").collect();
+        if parts.len() == 2 {
+            // Trim and remove quotes from the source town
+            let source = parts[0].trim().trim_matches('"').to_string();
+
+            let target_and_label = parts[1].trim();
+
+            // Find where the target ends (right before the `[`)
+            let target_end = target_and_label.find('[')?;
+            let target = target_and_label[..target_end]
+                .trim()
+                .trim_matches('"')
+                .to_string();
+
+            // Extract the label content within quotes
+            let label_start = target_and_label.find("label=\"")? + 7;
+            let label_end = target_and_label[label_start..].find('"')? + label_start;
+            let label = target_and_label[label_start..label_end].trim().to_string();
+
+            return Some((source, target, label));
+        }
+    }
+    None
+}
+
+// Struct for storing distance and cost between towns
+#[derive(Debug, Clone)]
+struct JourneyInfo {
+    distance: u32,
+    cost: u32,
+}
+
+// Functions for JourneyInfo
+impl JourneyInfo {
+    fn from_label(label: &str) -> Option<Self> {
+        let parts: Vec<&str> = label.split("/").map(|s| s.trim()).collect();
+        if parts.len() == 2 {
+            let distance = parts[0].split_whitespace().next()?.parse().ok()?;
+            let cost = parts[1].split_whitespace().next()?.parse().ok()?;
+            Some(Self { distance, cost })
+        } else {
+            None
+        }
     }
 }
 
