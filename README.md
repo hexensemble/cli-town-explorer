@@ -1,5 +1,5 @@
 # CLI AI RPG
-CLI RPG (with AI-driven NPCs) made with Rust. 🧙‍♂️
+CLI RPG (with AI-driven NPCs) built with Rust. 🧙‍♂️
 
 This project serves as a fun interactive way to demo my Rust skills.
 
