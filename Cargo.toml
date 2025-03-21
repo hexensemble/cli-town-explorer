@@ -1,5 +1,5 @@
 [package]
-name = "cli-ai-rpg"
+name = "cli-town-explorer"
 version = "0.1.0"
 edition = "2021"
 
