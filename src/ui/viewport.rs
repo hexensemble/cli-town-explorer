@@ -67,9 +67,7 @@ impl Viewport {
             // Main Menu
             crate::core::states::StateType::MainMenu => {
                 vec![
-                    Line::from("This is a small CLI app designed to showcase my Rust skills in a fun and interactive way."),
-                    Line::from("It’s a simple RPG where you can explore towns and interact with the world."),
-                    Line::from("Features will be explained as you move about."),
+                    Line::from("This CLI app allows you to explore worlds created with the CLI Town Generator."),
                     Line::from("\n"),
                     Line::from(vec![
                         Span::raw("Select "),
@@ -94,14 +92,10 @@ impl Viewport {
                     "Error getting town info!".into()
                 };
 
-                vec![Line::from("The game begins..."), 
-                    Line::from("\n"), 
-                    Line::from("As you’ve already seen, we have a terminal-based UI running with the help of Ratatui."),
-                    Line::from("There are three \"sections\" which all update based on the game's current state."),
-                    Line::from("\n"),
+                vec![
                     Line::from(town_name),
                     Line::from("\n"),
-                    Line::from("Select an option from the menu below...")
+                    Line::from("Select an option from the menu below..."),
                 ]
             }
             // Save Game (Success)
@@ -141,19 +135,11 @@ impl Viewport {
             }
             // Time
             crate::core::states::StateType::Time => {
-                vec![
-                    Line::from(self.time.clone()),
-                    Line::from("\n"),
-                    Line::from("Time runs in its own thread and updates continuously."),
-                ]
+                vec![Line::from(self.time.clone())]
             }
             // Weather
             crate::core::states::StateType::Weather => {
-                vec![
-                    Line::from(self.weather.clone()),
-                    Line::from("\n"),
-                    Line::from("Weather runs in its own thread and updates continuously."),
-                ]
+                vec![Line::from(self.weather.clone())]
             }
             // Travel
             crate::core::states::StateType::Travel => {
