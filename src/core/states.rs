@@ -12,7 +12,8 @@ pub enum StateType {
     GameQuit,
     Time,
     Weather,
-    Travel,
+    TravelTown,
+    TravelBuilding,
 }
 
 // Struct for State Manager

@@ -1,5 +1,6 @@
 use ratatui::style::{Style, Stylize};
 use ratatui::text::{Line, Span};
+use std::fmt::Write;
 
 // Struct for Viewport
 pub struct Viewport {
@@ -68,7 +69,7 @@ impl Viewport {
             crate::core::states::StateType::MainMenu => {
                 vec![
                     Line::from("This CLI app allows you to explore worlds created with the CLI Town Generator."),
-                    Line::from("\n"),
+                    Line::from(""),
                     Line::from(vec![
                         Span::raw("Select "),
                         Span::styled("New Game", Style::new().green().bold()),
@@ -86,27 +87,91 @@ impl Viewport {
             }
             // Game
             crate::core::states::StateType::Game => {
+                // Get town name
                 let town_name = if let Some(player) = managers.world_manager.player.as_ref() {
-                    format!("You are currently in the town of {}", player.town_name)
+                    if let Some(world) = managers.world_manager.world.as_ref() {
+                        if let Some(town) = world.towns.get(&player.current_town_id) {
+                            format!("You are currently in the town of {}.", town.name)
+                        } else {
+                            format!(
+                                "Failed to find town name for town ID: {}",
+                                player.current_town_id
+                            )
+                        }
+                    } else {
+                        format!(
+                            "Failed to find town name for town ID: {}",
+                            player.current_town_id
+                        )
+                    }
                 } else {
                     "Error getting town info!".into()
                 };
 
-                vec![
+                // Get location
+                let location = if let Some(player) = managers.world_manager.player.as_ref() {
+                    if let Some(current_building_id) = player.current_building_id.as_ref() {
+                        if let Some(world) = managers.world_manager.world.as_ref() {
+                            if let Some(building) = world.buildings.get(current_building_id) {
+                                format!("Location: {}", building.name)
+                            } else {
+                                format!(
+                                    "Failed to find building name for building ID: {}",
+                                    current_building_id
+                                )
+                            }
+                        } else {
+                            format!(
+                                "Failed to find building name for building ID: {}",
+                                current_building_id
+                            )
+                        }
+                    } else {
+                        "Location: Outside".into()
+                    }
+                } else {
+                    "Error getting location info!".into()
+                };
+
+                // Get list of buildings
+                let mut list_of_buildings = String::new();
+                if let Some(player) = managers.world_manager.player.as_ref() {
+                    if let Some(world) = managers.world_manager.world.as_ref() {
+                        if let Some(town) = world.towns.get(&player.current_town_id).as_ref() {
+                            for building in &town.buildings {
+                                writeln!(list_of_buildings, "{}", building.name).unwrap();
+                            }
+                        } else {
+                            list_of_buildings = "Failed to get buildings.".into();
+                        }
+                    } else {
+                        list_of_buildings = "Failed to get buildings.".into();
+                    }
+                } else {
+                    list_of_buildings = "Failed to get buildings.".into();
+                }
+
+                // Text to render
+                let mut output_lines = vec![
                     Line::from(town_name),
-                    Line::from("\n"),
-                    Line::from("Select an option from the menu below..."),
-                ]
+                    Line::from(""),
+                    Line::from(location),
+                    Line::from(""),
+                    Line::from("Buildings:"),
+                    Line::from(""),
+                ];
+                output_lines.extend(
+                    list_of_buildings
+                        .lines()
+                        .map(|line| Line::from(line.to_string())),
+                );
+                output_lines.push(Line::from(""));
+                output_lines.push(Line::from("Select an option from the menu below..."));
+                output_lines
             }
             // Save Game (Success)
             crate::core::states::StateType::GameSaveSuccess => {
-                vec![
-                    Line::from("Game saved successfully."),
-                    Line::from("\n"),
-                    Line::from(
-                        "All game data has been serialized and saved to JSON file: saves/save.json",
-                    ),
-                ]
+                vec![Line::from("Game saved successfully.")]
             }
             // Save Game (Error)
             crate::core::states::StateType::GameSaveError => {
@@ -141,9 +206,13 @@ impl Viewport {
             crate::core::states::StateType::Weather => {
                 vec![Line::from(self.weather.clone())]
             }
-            // Travel
-            crate::core::states::StateType::Travel => {
-                vec![Line::from("Where would you like to go?")]
+            // Travel Town
+            crate::core::states::StateType::TravelTown => {
+                vec![Line::from("Which town would you like to visit?")]
+            }
+            // Travel Building
+            crate::core::states::StateType::TravelBuilding => {
+                vec![Line::from("Which building would you like to visit?")]
             }
         }
     }

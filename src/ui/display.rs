@@ -90,11 +90,14 @@ fn render(frame: &mut Frame, managers: &Managers, ui_components: &mut UIComponen
         .split(vertical[0]);
 
     // Menu
+    let menu_area = horizontal[1];
+    ui_components.menu.visible_count = menu_area.height.saturating_sub(2) as usize;
+
     let menu_options = ui_components.menu.render(managers);
 
     let menu_block =
         List::new(menu_options).block(Block::default().title("Menu").borders(Borders::ALL));
-    frame.render_widget(menu_block, horizontal[1]);
+    frame.render_widget(menu_block, menu_area);
 
     // Viewport
     let viewport_text = ui_components.viewport.render(managers);

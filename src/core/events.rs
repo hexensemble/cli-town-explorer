@@ -1,4 +1,6 @@
+use core::panic;
 use crossterm::event::{self, Event, KeyCode};
+use std::collections::HashMap;
 use std::io;
 use std::time::Duration;
 
@@ -153,9 +155,12 @@ fn select(
                 managers.state_manager.current_state = super::states::StateType::Weather;
             }
             2 => {
-                managers.state_manager.current_state = super::states::StateType::Travel;
+                managers.state_manager.current_state = super::states::StateType::TravelTown;
             }
             3 => {
+                managers.state_manager.current_state = super::states::StateType::TravelBuilding;
+            }
+            4 => {
                 match managers.save_manager.save(
                     &managers.world_manager,
                     &managers.time_manager,
@@ -173,14 +178,14 @@ fn select(
                     }
                 };
             }
-            4 => {
+            5 => {
                 managers.state_manager.current_state = super::states::StateType::GameQuit;
                 ui_components.menu.selected_index = 0;
             }
             _ => {}
         },
-        // Travel
-        super::states::StateType::Travel => match ui_components
+        // Travel Town
+        super::states::StateType::TravelTown => match ui_components
             .menu
             .menu_options
             .get(ui_components.menu.selected_index)
@@ -191,10 +196,51 @@ fn select(
                     ui_components.menu.selected_index = 0;
                 } else if let Some(player) = managers.world_manager.player.as_mut() {
                     // Save current town
-                    let current_town = player.town_name.clone();
+                    let current_town = if let Some(world) = managers.world_manager.world.as_ref() {
+                        if let Some(town) = world.towns.get(&player.current_town_id) {
+                            town.name.clone()
+                        } else {
+                            log::error!(
+                                "Failed to find town name for town ID: {}",
+                                player.current_town_id
+                            );
+                            panic!(
+                                "Failed to find town name for town ID: {}",
+                                player.current_town_id
+                            )
+                        }
+                    } else {
+                        log::error!(
+                            "Failed to find town name for town ID: {}",
+                            player.current_town_id
+                        );
+                        panic!(
+                            "Failed to find town name for town ID: {}",
+                            player.current_town_id
+                        )
+                    };
 
                     // Change town to new town
-                    player.town_name = selected_option.to_string();
+                    let towns = if let Some(world) = managers.world_manager.world.as_ref() {
+                        &world.towns
+                    } else {
+                        log::error!("Failed to find world data while attempting to travel.");
+                        panic!("Failed to find world data while attempting to travel.")
+                    };
+
+                    match find_id_by_name(towns, selected_option) {
+                        Some(id) => player.current_town_id = id,
+                        None => {
+                            log::error!(
+                                "Failed to find town ID for town name: {}",
+                                selected_option
+                            );
+                            panic!("Failed to find town ID for town name: {}", selected_option);
+                        }
+                    };
+
+                    // Move player to outside
+                    player.current_building_id = None;
 
                     // Stop time
                     managers.time_manager.stop();
@@ -237,6 +283,37 @@ fn select(
                 );
             }
         },
+        // Travel Building
+        super::states::StateType::TravelBuilding => match ui_components
+            .menu
+            .menu_options
+            .get(ui_components.menu.selected_index)
+        {
+            Some(selected_option) => {
+                if selected_option == "Back" {
+                    managers.state_manager.current_state = super::states::StateType::Game;
+                    ui_components.menu.selected_index = 0;
+                } else if let Some(player) = managers.world_manager.player.as_mut() {
+                    let buildings = if let Some(world) = managers.world_manager.world.as_ref() {
+                        &world.buildings
+                    } else {
+                        log::error!("Failed to find world data while attempting to travel.");
+                        panic!("Failed to find world data while attempting to travel.")
+                    };
+
+                    player.current_building_id = find_id_by_name(buildings, selected_option);
+
+                    managers.state_manager.current_state = super::states::StateType::Game;
+                    ui_components.menu.selected_index = 0;
+                }
+            }
+            None => {
+                log::error!(
+                    "Failed to find building at selectec index {}",
+                    ui_components.menu.selected_index
+                );
+            }
+        },
         // Quit Game
         super::states::StateType::GameQuit => match ui_components.menu.selected_index {
             0 => {
@@ -270,7 +347,8 @@ fn start_game(
     managers.world_manager.player = Some(crate::entities::player::Player::new(
         666,
         ui_components.popup.input.clone(),
-        "Higashi Kawaport".into(),
+        59015,
+        None,
     ));
 
     managers
@@ -312,4 +390,27 @@ fn load_game(
     }
 
     Ok(())
+}
+
+// Trait and function for getting ID from Town or Building name
+trait HasName {
+    fn name(&self) -> &str;
+}
+
+impl HasName for crate::world::manager::Town {
+    fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+impl HasName for crate::world::manager::Building {
+    fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+fn find_id_by_name<'a, T: HasName>(items: &'a HashMap<u32, T>, name: &str) -> Option<u32> {
+    items
+        .iter()
+        .find_map(|(id, item)| if item.name() == name { Some(*id) } else { None })
 }

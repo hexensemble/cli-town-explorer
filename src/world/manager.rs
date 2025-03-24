@@ -70,6 +70,7 @@ impl WorldManager {
         Ok(())
     }
 
+    // Get travel time between towns
     pub fn get_travel_time(&self, origin: &String, destination: &String) -> u32 {
         if let (Some(&origin_unwrapped), Some(&destination_unwrapped)) = (
             self.node_indices.get(origin),
@@ -148,7 +149,7 @@ impl JourneyInfo {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct World {
     pub towns: HashMap<u32, Town>,
-    buildings: HashMap<u32, Building>,
+    pub buildings: HashMap<u32, Building>,
     rooms: HashMap<u32, Room>,
     npcs: HashMap<u32, Npc>,
     containers: HashMap<u32, Container>,
@@ -160,15 +161,15 @@ pub struct Town {
     id: u32,
     pub name: String,
     coords: (u32, u32),
-    number_of_buildings: u32,
-    buildings: Vec<Building>,
+    pub number_of_buildings: u32,
+    pub buildings: Vec<Building>,
 }
 
 // Struct for representing a building
 #[derive(Serialize, Deserialize, Debug, Clone)]
-struct Building {
+pub struct Building {
     id: u32,
-    name: String,
+    pub name: String,
     building_type: BuildingType,
     town_id: u32,
     coords: (u32, u32),
