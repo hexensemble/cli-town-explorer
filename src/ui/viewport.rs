@@ -11,6 +11,8 @@ pub struct Viewport {
     room_id: String,
     list_of_buildings: String,
     list_of_rooms: String,
+    list_of_npcs: String,
+    list_of_containers: String,
 }
 
 // Functions for Viewport
@@ -25,6 +27,8 @@ impl Viewport {
             room_id: String::new(),
             list_of_buildings: String::new(),
             list_of_rooms: String::new(),
+            list_of_npcs: String::new(),
+            list_of_containers: String::new(),
         }
     }
 
@@ -134,6 +138,55 @@ impl Viewport {
                     }
                 } else {
                     self.list_of_rooms = "Failed to get rooms.".into();
+                }
+
+                //Get list of NPCs
+                self.list_of_npcs.clear();
+                if let Some(player) = managers.world_manager.player.as_ref() {
+                    if let Some(current_room_id) = player.current_room_id.as_ref() {
+                        if let Some(world) = managers.world_manager.world.as_ref() {
+                            if let Some(room) = world.rooms.get(current_room_id) {
+                                for npc in &room.npcs {
+                                    writeln!(self.list_of_npcs, "{}", npc.name).unwrap();
+                                }
+                            } else {
+                                self.list_of_npcs = "Failed to get NPCs.".into();
+                            }
+                        } else {
+                            self.list_of_npcs = "Failed to get NPCs.".into();
+                        }
+                    } else {
+                        self.list_of_npcs = "Failed to get NPCs.".into();
+                    }
+                } else {
+                    self.list_of_npcs = "Failed to get NPCs.".into();
+                }
+
+                //Get list of containers
+                self.list_of_containers.clear();
+                if let Some(player) = managers.world_manager.player.as_ref() {
+                    if let Some(current_room_id) = player.current_room_id.as_ref() {
+                        if let Some(world) = managers.world_manager.world.as_ref() {
+                            if let Some(room) = world.rooms.get(current_room_id) {
+                                for container in &room.containers {
+                                    writeln!(
+                                        self.list_of_containers,
+                                        "{:?}",
+                                        container.container_type
+                                    )
+                                    .unwrap();
+                                }
+                            } else {
+                                self.list_of_containers = "Failed to get containers.".into();
+                            }
+                        } else {
+                            self.list_of_containers = "Failed to get containers.".into();
+                        }
+                    } else {
+                        self.list_of_containers = "Failed to get containers.".into();
+                    }
+                } else {
+                    self.list_of_containers = "Failed to get containers.".into();
                 }
             }
             // Time
@@ -285,14 +338,30 @@ impl Viewport {
             }
             // Room
             crate::core::states::StateType::Room => {
-                vec![
+                let mut output_lines = vec![
                     Line::from(self.town_name.clone()),
                     Line::from(""),
                     Line::from(self.location.clone()),
                     Line::from(""),
                     Line::from(self.room_id.clone()),
                     Line::from(""),
-                ]
+                    Line::from("NPCs:"),
+                    Line::from(""),
+                ];
+                output_lines.extend(
+                    self.list_of_npcs
+                        .lines()
+                        .map(|line| Line::from(line.to_string())),
+                );
+                output_lines.push(Line::from(""));
+                output_lines.push(Line::from("Containers:"));
+                output_lines.push(Line::from(""));
+                output_lines.extend(
+                    self.list_of_containers
+                        .lines()
+                        .map(|line| Line::from(line.to_string())),
+                );
+                output_lines
             }
         }
     }

@@ -191,17 +191,17 @@ pub struct Room {
     pub id: u32,
     town_id: u32,
     building_id: u32,
-    npcs: Vec<Npc>,
-    containers: Vec<Container>,
+    pub npcs: Vec<Npc>,
+    pub containers: Vec<Container>,
 }
 
 // Struct for representing an NPC
 #[derive(Serialize, Deserialize, Debug, Clone)]
-struct Npc {
+pub struct Npc {
     id: u32,
-    name: String,
-    sex: NpcSex,
-    race: NpcRace,
+    pub name: String,
+    pub sex: NpcSex,
+    pub race: NpcRace,
     town_id: u32,
     building_id: u32,
     room_id: Option<u32>,
@@ -209,7 +209,7 @@ struct Npc {
 
 // Enum for NPC sex
 #[derive(Serialize, Deserialize, Debug, Clone)]
-enum NpcSex {
+pub enum NpcSex {
     Male,
     Female,
     Unisex,
@@ -217,16 +217,16 @@ enum NpcSex {
 
 // Enum for NPC race
 #[derive(Serialize, Deserialize, Debug, Clone)]
-enum NpcRace {
+pub enum NpcRace {
     Human,
     Elf,
 }
 
 // Struct for representing a container
 #[derive(Serialize, Deserialize, Debug, Clone)]
-struct Container {
+pub struct Container {
     id: u32,
-    container_type: ContainerType,
+    pub container_type: ContainerType,
     town_id: u32,
     building_id: u32,
     room_id: u32,
@@ -234,7 +234,7 @@ struct Container {
 
 // Enum for container types
 #[derive(Serialize, Deserialize, Debug, Clone)]
-enum ContainerType {
+pub enum ContainerType {
     Barrel,
     Crate,
     Chest,
