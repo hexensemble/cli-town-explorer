@@ -35,6 +35,7 @@ pub fn start() -> Result<()> {
 
 // Main loop
 fn run(mut terminal: DefaultTerminal) -> Result<()> {
+    // Create managers
     let mut managers = Managers {
         state_manager: crate::core::states::StateManager::new(),
         world_manager: crate::world::manager::WorldManager::new(),
@@ -43,6 +44,7 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
         save_manager: crate::core::save::SaveGameManager::new(),
     };
 
+    // Create UI components
     let mut ui_components = UIComponents {
         menu: super::menu::Menu::new(),
         viewport: super::viewport::Viewport::new(),
@@ -54,6 +56,7 @@ fn run(mut terminal: DefaultTerminal) -> Result<()> {
         // Update
         ui_components.menu.update(&managers);
         ui_components.viewport.update(&managers);
+        ui_components.stats.update(&managers);
         ui_components.popup.update(&managers);
 
         // Render

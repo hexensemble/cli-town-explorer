@@ -14,6 +14,8 @@ pub enum StateType {
     Weather,
     TravelTown,
     TravelBuilding,
+    Building,
+    Room,
 }
 
 // Struct for State Manager

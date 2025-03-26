@@ -150,7 +150,7 @@ impl JourneyInfo {
 pub struct World {
     pub towns: HashMap<u32, Town>,
     pub buildings: HashMap<u32, Building>,
-    rooms: HashMap<u32, Room>,
+    pub rooms: HashMap<u32, Room>,
     npcs: HashMap<u32, Npc>,
     containers: HashMap<u32, Container>,
 }
@@ -173,7 +173,7 @@ pub struct Building {
     building_type: BuildingType,
     town_id: u32,
     coords: (u32, u32),
-    rooms: Vec<Room>,
+    pub rooms: Vec<Room>,
 }
 
 // Enum for building types
@@ -187,8 +187,8 @@ enum BuildingType {
 
 // Struct for representing a room
 #[derive(Serialize, Deserialize, Debug, Clone)]
-struct Room {
-    id: u32,
+pub struct Room {
+    pub id: u32,
     town_id: u32,
     building_id: u32,
     npcs: Vec<Npc>,

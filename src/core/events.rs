@@ -184,6 +184,21 @@ fn select(
             }
             _ => {}
         },
+        // Quit Game
+        super::states::StateType::GameQuit => match ui_components.menu.selected_index {
+            0 => {
+                managers.time_manager.stop();
+                managers.weather_manager.stop();
+
+                managers.state_manager.current_state = crate::core::states::StateType::MainMenu;
+                ui_components.menu.selected_index = 0;
+            }
+            1 => {
+                managers.state_manager.current_state = crate::core::states::StateType::Game;
+                ui_components.menu.selected_index = 0;
+            }
+            _ => {}
+        },
         // Travel Town
         super::states::StateType::TravelTown => match ui_components
             .menu
@@ -291,6 +306,10 @@ fn select(
         {
             Some(selected_option) => {
                 if selected_option == "Back" {
+                    if let Some(player) = managers.world_manager.player.as_mut() {
+                        player.current_building_id = None;
+                    }
+
                     managers.state_manager.current_state = super::states::StateType::Game;
                     ui_components.menu.selected_index = 0;
                 } else if let Some(player) = managers.world_manager.player.as_mut() {
@@ -303,7 +322,7 @@ fn select(
 
                     player.current_building_id = find_id_by_name(buildings, selected_option);
 
-                    managers.state_manager.current_state = super::states::StateType::Game;
+                    managers.state_manager.current_state = super::states::StateType::Building;
                     ui_components.menu.selected_index = 0;
                 }
             }
@@ -314,21 +333,59 @@ fn select(
                 );
             }
         },
-        // Quit Game
-        super::states::StateType::GameQuit => match ui_components.menu.selected_index {
-            0 => {
-                managers.time_manager.stop();
-                managers.weather_manager.stop();
+        // Building
+        super::states::StateType::Building => match ui_components
+            .menu
+            .menu_options
+            .get(ui_components.menu.selected_index)
+        {
+            Some(selected_option) => {
+                if selected_option == "Back" {
+                    if let Some(player) = managers.world_manager.player.as_mut() {
+                        player.current_building_id = None;
+                    }
 
-                managers.state_manager.current_state = crate::core::states::StateType::MainMenu;
+                    managers.state_manager.current_state = super::states::StateType::TravelBuilding;
+                    ui_components.menu.selected_index = 0;
+                } else if let Some(player) = managers.world_manager.player.as_mut() {
+                    match selected_option.parse::<u32>() {
+                        Ok(id) => player.current_room_id = Some(id),
+                        Err(e) => {
+                            log::error!(
+                                "Failed to find room for room ID: {}, Error: {}",
+                                selected_option,
+                                e
+                            );
+                            panic!(
+                                "Failed to find room for room ID: {}, Error: {}",
+                                selected_option, e
+                            );
+                        }
+                    }
+
+                    managers.state_manager.current_state = super::states::StateType::Room;
+                    ui_components.menu.selected_index = 0;
+                }
+            }
+            None => {
+                log::error!(
+                    "Failed to find room at selected index {}",
+                    ui_components.menu.selected_index
+                );
+            }
+        },
+        // Room
+        super::states::StateType::Room => {
+            if ui_components.menu.selected_index == 0 {
+                if let Some(player) = managers.world_manager.player.as_mut() {
+                    player.current_room_id = None;
+                }
+
+                managers.state_manager.current_state = crate::core::states::StateType::Building;
                 ui_components.menu.selected_index = 0;
             }
-            1 => {
-                managers.state_manager.current_state = crate::core::states::StateType::Game;
-                ui_components.menu.selected_index = 0;
-            }
-            _ => {}
-        }, // All other states
+        }
+        // All other states
         _ => {}
     }
 
@@ -348,6 +405,7 @@ fn start_game(
         666,
         ui_components.popup.input.clone(),
         59015,
+        None,
         None,
     ));
 

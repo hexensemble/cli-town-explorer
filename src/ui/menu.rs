@@ -14,6 +14,7 @@ const OPTIONS_GAME: [&str; 6] = [
     "Quit",
 ];
 const OPTIONS_GAME_QUIT: [&str; 2] = ["Yes", "No"];
+const OPTIONS_BACK: [&str; 1] = ["Back"];
 
 // Struct for Menu
 pub struct Menu {
@@ -72,6 +73,19 @@ impl Menu {
                 self.menu_options
                     .extend(OPTIONS_CONFIRM.iter().map(|&option| option.to_string()));
             }
+            // Save Game, Load Game (Error), and Initialize Game (Error)
+            crate::core::states::StateType::GameSaveSuccess
+            | crate::core::states::StateType::GameSaveError
+            | crate::core::states::StateType::GameLoadError
+            | crate::core::states::StateType::GameInitError => {
+                self.menu_options
+                    .extend(OPTIONS_CONTINUE.iter().map(|&option| option.to_string()));
+            }
+            // Quit Game
+            crate::core::states::StateType::GameQuit => {
+                self.menu_options
+                    .extend(OPTIONS_GAME_QUIT.iter().map(|&option| option.to_string()));
+            }
             // Game, Time, and Weather
             crate::core::states::StateType::Game
             | crate::core::states::StateType::Time
@@ -84,7 +98,7 @@ impl Menu {
                 if let Some(world) = managers.world_manager.world.as_ref() {
                     self.menu_options
                         .extend(world.towns.values().map(|town| town.name.clone()));
-                    self.menu_options.push("Back".into());
+                    self.menu_options.push(OPTIONS_BACK[0].to_string());
                 }
             }
             // Travel Building
@@ -95,22 +109,29 @@ impl Menu {
                             self.menu_options.extend(
                                 town.buildings.iter().map(|building| building.name.clone()),
                             );
-                            self.menu_options.push("Back".into());
+                            self.menu_options.push(OPTIONS_BACK[0].to_string());
                         }
                     }
                 }
             }
-            // Save Game, Load Game (Error), and Initialize Game (Error)
-            crate::core::states::StateType::GameSaveSuccess
-            | crate::core::states::StateType::GameSaveError
-            | crate::core::states::StateType::GameLoadError
-            | crate::core::states::StateType::GameInitError => {
+            // Building
+            crate::core::states::StateType::Building => {
+                if let Some(player) = managers.world_manager.player.as_ref() {
+                    if let Some(current_building_id) = player.current_building_id.as_ref() {
+                        if let Some(world) = managers.world_manager.world.as_ref() {
+                            if let Some(building) = world.buildings.get(current_building_id) {
+                                self.menu_options
+                                    .extend(building.rooms.iter().map(|room| room.id.to_string()));
+                            }
+                        }
+                    }
+                }
+                self.menu_options.push(OPTIONS_BACK[0].to_string());
+            }
+            // Room
+            crate::core::states::StateType::Room => {
                 self.menu_options
-                    .extend(OPTIONS_CONTINUE.iter().map(|&option| option.to_string()));
-            } // Quit Game
-            crate::core::states::StateType::GameQuit => {
-                self.menu_options
-                    .extend(OPTIONS_GAME_QUIT.iter().map(|&option| option.to_string()));
+                    .extend(OPTIONS_BACK.iter().map(|&option| option.to_string()));
             }
         };
     }

@@ -6,6 +6,11 @@ use std::fmt::Write;
 pub struct Viewport {
     time: String,
     weather: String,
+    town_name: String,
+    location: String,
+    room_id: String,
+    list_of_buildings: String,
+    list_of_rooms: String,
 }
 
 // Functions for Viewport
@@ -15,16 +20,124 @@ impl Viewport {
         Self {
             time: String::new(),
             weather: String::new(),
+            town_name: String::new(),
+            location: String::new(),
+            room_id: String::new(),
+            list_of_buildings: String::new(),
+            list_of_rooms: String::new(),
         }
     }
 
     // Updates any dynamic parts of Viewport
     pub fn update(&mut self, managers: &super::display::Managers) {
         match managers.state_manager.current_state {
-            // Game, Time, and Weather
+            // Game, Travel Town, Travel Building, Building, and Room
             crate::core::states::StateType::Game
-            | crate::core::states::StateType::Time
-            | crate::core::states::StateType::Weather => {
+            | crate::core::states::StateType::TravelTown
+            | crate::core::states::StateType::TravelBuilding
+            | crate::core::states::StateType::Building
+            | crate::core::states::StateType::Room => {
+                // Get town name
+                self.town_name = if let Some(player) = managers.world_manager.player.as_ref() {
+                    if let Some(world) = managers.world_manager.world.as_ref() {
+                        if let Some(town) = world.towns.get(&player.current_town_id) {
+                            format!("Current Town: {}.", town.name)
+                        } else {
+                            format!(
+                                "Failed to find town name for town ID: {}",
+                                player.current_town_id
+                            )
+                        }
+                    } else {
+                        format!(
+                            "Failed to find town name for town ID: {}",
+                            player.current_town_id
+                        )
+                    }
+                } else {
+                    "Error getting town info!".into()
+                };
+
+                // Get location
+                self.location = if let Some(player) = managers.world_manager.player.as_ref() {
+                    if let Some(current_building_id) = player.current_building_id.as_ref() {
+                        if let Some(world) = managers.world_manager.world.as_ref() {
+                            if let Some(building) = world.buildings.get(current_building_id) {
+                                format!("Location: {}", building.name)
+                            } else {
+                                format!(
+                                    "Failed to find building name for building ID: {}",
+                                    current_building_id
+                                )
+                            }
+                        } else {
+                            format!(
+                                "Failed to find building name for building ID: {}",
+                                current_building_id
+                            )
+                        }
+                    } else {
+                        "Location: Outside".into()
+                    }
+                } else {
+                    "Error getting location info!".into()
+                };
+
+                // Get room ID
+                self.room_id = if let Some(player) = managers.world_manager.player.as_ref() {
+                    if let Some(room_id) = player.current_room_id.as_ref() {
+                        format!("Room: {}", room_id)
+                    } else {
+                        "Room: None".into()
+                    }
+                } else {
+                    "Error getting room info!".into()
+                };
+
+                // Get list of buildings
+                self.list_of_buildings.clear();
+                if let Some(player) = managers.world_manager.player.as_ref() {
+                    if let Some(world) = managers.world_manager.world.as_ref() {
+                        if let Some(town) = world.towns.get(&player.current_town_id).as_ref() {
+                            for building in &town.buildings {
+                                writeln!(self.list_of_buildings, "{}", building.name).unwrap();
+                            }
+                        } else {
+                            self.list_of_buildings = "Failed to get buildings.".into();
+                        }
+                    } else {
+                        self.list_of_buildings = "Failed to get buildings.".into();
+                    }
+                } else {
+                    self.list_of_buildings = "Failed to get buildings.".into();
+                }
+
+                // Get list of rooms
+                self.list_of_rooms.clear();
+                if let Some(player) = managers.world_manager.player.as_ref() {
+                    if let Some(current_building_id) = player.current_building_id.as_ref() {
+                        if let Some(world) = managers.world_manager.world.as_ref() {
+                            if let Some(building) =
+                                world.buildings.get(current_building_id).as_ref()
+                            {
+                                for room in &building.rooms {
+                                    writeln!(self.list_of_rooms, "{}", room.id).unwrap();
+                                }
+                            } else {
+                                self.list_of_rooms = "Failed to get rooms.".into();
+                            }
+                        } else {
+                            self.list_of_rooms = "Failed to get rooms.".into();
+                        }
+                    } else {
+                        self.list_of_rooms = "Failed to get rooms.".into();
+                    }
+                } else {
+                    self.list_of_rooms = "Failed to get rooms.".into();
+                }
+            }
+            // Time
+            crate::core::states::StateType::Time => {
                 // Get time
                 if let Some(game_time) = &managers.time_manager.time_arc_rwlock {
                     if let Ok(game_time_unwrapped) = game_time.read() {
@@ -42,7 +155,9 @@ impl Viewport {
                     log::error!("Failed to initialize GameTime.");
                     self.time = "GameTime unavailable".into();
                 }
-
+            }
+            // Weather
+            crate::core::states::StateType::Weather => {
                 // Get weather
                 if let Some(game_weather) = &managers.weather_manager.weather_arc_rwlock {
                     if let Ok(game_weather_unwrapped) = game_weather.read() {
@@ -87,81 +202,16 @@ impl Viewport {
             }
             // Game
             crate::core::states::StateType::Game => {
-                // Get town name
-                let town_name = if let Some(player) = managers.world_manager.player.as_ref() {
-                    if let Some(world) = managers.world_manager.world.as_ref() {
-                        if let Some(town) = world.towns.get(&player.current_town_id) {
-                            format!("You are currently in the town of {}.", town.name)
-                        } else {
-                            format!(
-                                "Failed to find town name for town ID: {}",
-                                player.current_town_id
-                            )
-                        }
-                    } else {
-                        format!(
-                            "Failed to find town name for town ID: {}",
-                            player.current_town_id
-                        )
-                    }
-                } else {
-                    "Error getting town info!".into()
-                };
-
-                // Get location
-                let location = if let Some(player) = managers.world_manager.player.as_ref() {
-                    if let Some(current_building_id) = player.current_building_id.as_ref() {
-                        if let Some(world) = managers.world_manager.world.as_ref() {
-                            if let Some(building) = world.buildings.get(current_building_id) {
-                                format!("Location: {}", building.name)
-                            } else {
-                                format!(
-                                    "Failed to find building name for building ID: {}",
-                                    current_building_id
-                                )
-                            }
-                        } else {
-                            format!(
-                                "Failed to find building name for building ID: {}",
-                                current_building_id
-                            )
-                        }
-                    } else {
-                        "Location: Outside".into()
-                    }
-                } else {
-                    "Error getting location info!".into()
-                };
-
-                // Get list of buildings
-                let mut list_of_buildings = String::new();
-                if let Some(player) = managers.world_manager.player.as_ref() {
-                    if let Some(world) = managers.world_manager.world.as_ref() {
-                        if let Some(town) = world.towns.get(&player.current_town_id).as_ref() {
-                            for building in &town.buildings {
-                                writeln!(list_of_buildings, "{}", building.name).unwrap();
-                            }
-                        } else {
-                            list_of_buildings = "Failed to get buildings.".into();
-                        }
-                    } else {
-                        list_of_buildings = "Failed to get buildings.".into();
-                    }
-                } else {
-                    list_of_buildings = "Failed to get buildings.".into();
-                }
-
-                // Text to render
                 let mut output_lines = vec![
-                    Line::from(town_name),
+                    Line::from(self.town_name.clone()),
                     Line::from(""),
-                    Line::from(location),
+                    Line::from(self.location.clone()),
                     Line::from(""),
                     Line::from("Buildings:"),
                     Line::from(""),
                 ];
                 output_lines.extend(
-                    list_of_buildings
+                    self.list_of_buildings
                         .lines()
                         .map(|line| Line::from(line.to_string())),
                 );
@@ -213,6 +263,36 @@ impl Viewport {
             // Travel Building
             crate::core::states::StateType::TravelBuilding => {
                 vec![Line::from("Which building would you like to visit?")]
+            }
+            // Building
+            crate::core::states::StateType::Building => {
+                let mut output_lines = vec![
+                    Line::from(self.town_name.clone()),
+                    Line::from(""),
+                    Line::from(self.location.clone()),
+                    Line::from(""),
+                    Line::from("Rooms:"),
+                    Line::from(""),
+                ];
+                output_lines.extend(
+                    self.list_of_rooms
+                        .lines()
+                        .map(|line| Line::from(line.to_string())),
+                );
+                output_lines.push(Line::from(""));
+                output_lines.push(Line::from("Select an option from the menu below..."));
+                output_lines
+            }
+            // Room
+            crate::core::states::StateType::Room => {
+                vec![
+                    Line::from(self.town_name.clone()),
+                    Line::from(""),
+                    Line::from(self.location.clone()),
+                    Line::from(""),
+                    Line::from(self.room_id.clone()),
+                    Line::from(""),
+                ]
             }
         }
     }
