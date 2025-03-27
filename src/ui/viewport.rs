@@ -236,7 +236,11 @@ impl Viewport {
             // Main Menu
             crate::core::states::StateType::MainMenu => {
                 vec![
-                    Line::from("This CLI app allows you to explore worlds created with the CLI Town Generator."),
+                    Line::from("Welcome to CLI Town Explorer!"),
+                    Line::from("v1.0"),
+                    Line::from("by HexEnsemble"),
+                    Line::from(""),
+                    Line::from("This app allows you to explore worlds created with the CLI Town Generator."),
                     Line::from(""),
                     Line::from(vec![
                         Span::raw("Select "),

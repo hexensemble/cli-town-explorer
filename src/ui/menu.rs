@@ -5,6 +5,7 @@ use ratatui::widgets::ListItem;
 const OPTIONS_MAIN_MENU: [&str; 3] = ["New Game", "Load Game", "Exit"];
 const OPTIONS_CONFIRM: [&str; 2] = ["Enter to Confirm", "Esc to Cancel"];
 const OPTIONS_CONTINUE: [&str; 1] = ["Enter to Continue"];
+const OPTIONS_BACK: [&str; 1] = ["Back"];
 const OPTIONS_GAME: [&str; 6] = [
     "Time",
     "Weather",
@@ -14,7 +15,6 @@ const OPTIONS_GAME: [&str; 6] = [
     "Quit",
 ];
 const OPTIONS_GAME_QUIT: [&str; 2] = ["Yes", "No"];
-const OPTIONS_BACK: [&str; 1] = ["Back"];
 
 // Struct for Menu
 pub struct Menu {

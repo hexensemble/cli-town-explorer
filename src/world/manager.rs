@@ -158,7 +158,7 @@ pub struct World {
 // Struct for representing a town
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Town {
-    id: u32,
+    pub id: u32,
     pub name: String,
     coords: (u32, u32),
     pub number_of_buildings: u32,

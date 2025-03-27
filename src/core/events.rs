@@ -401,10 +401,22 @@ fn start_game(
 
     managers.world_manager.load_world()?;
 
+    let town_id = if let Some(world) = managers.world_manager.world.as_ref() {
+        if let Some((_key, town)) = world.towns.iter().next() {
+            town.id
+        } else {
+            log::error!("Failed to load world.");
+            panic!("Failed to load world.");
+        }
+    } else {
+        log::error!("Failed to load world.");
+        panic!("Failed to load world.");
+    };
+
     managers.world_manager.player = Some(crate::entities::player::Player::new(
         666,
         ui_components.popup.input.clone(),
-        59015,
+        town_id,
         None,
         None,
     ));
