@@ -240,7 +240,10 @@ impl Viewport {
                     Line::from("v1.0"),
                     Line::from("by HexEnsemble"),
                     Line::from(""),
-                    Line::from("This app allows you to explore worlds created with the CLI Town Generator."),
+                    Line::from("This app allows you to explore towns created with CLI Town Generator."),
+                    Line::from(""),
+                    Line::from("An example world is already included."),
+                    Line::from("Replace world.json and world.dot in the assets folder with your own generated versions."),
                     Line::from(""),
                     Line::from(vec![
                         Span::raw("Select "),
